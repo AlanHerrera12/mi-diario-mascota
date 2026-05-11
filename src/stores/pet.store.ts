@@ -9,6 +9,7 @@ interface PetState {
   setGemBalance: (balance: number) => void;
   addGems: (amount: number) => void;
   setStreak: (streak: number) => void;
+  setEquippedItems: (itemIds: string[]) => void;
 }
 
 export const usePetStore = create<PetState>(set => ({
@@ -20,4 +21,9 @@ export const usePetStore = create<PetState>(set => ({
   setGemBalance: balance => set({ gemBalance: balance }),
   addGems: amount => set(state => ({ gemBalance: state.gemBalance + amount })),
   setStreak: streak => set({ currentStreak: streak }),
+  setEquippedItems: itemIds => set(state => ({
+    pet: state.pet
+      ? { ...state.pet, customization: { ...state.pet.customization, equippedItems: itemIds } }
+      : null,
+  })),
 }));
