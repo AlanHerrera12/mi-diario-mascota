@@ -3,15 +3,14 @@
 -- Ejecutar con: supabase db push
 -- ============================================================
 
--- Habilitar extensiones necesarias
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- gen_random_uuid() está disponible de forma nativa en Postgres 13+ (Supabase lo incluye)
+-- No necesitamos uuid-ossp en versiones modernas de Supabase
 
 -- ============================================================
 -- PADRES (cuenta primaria con auth real)
 -- ============================================================
 CREATE TABLE parents (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email         TEXT UNIQUE NOT NULL,
   full_name     TEXT NOT NULL,
   consent_given_at  TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -33,7 +32,7 @@ CREATE POLICY "Padres solo ven sus propios datos"
 -- NIÑOS (sub-perfiles bajo el padre)
 -- ============================================================
 CREATE TABLE children (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   parent_id     UUID NOT NULL REFERENCES parents(id) ON DELETE CASCADE,
   display_name  TEXT NOT NULL,
   age_range     TEXT NOT NULL CHECK (age_range IN ('5-7', '8-10', '11-13', '14+')),
@@ -50,7 +49,7 @@ CREATE POLICY "Padres ven solo a sus niños"
 -- MASCOTAS
 -- ============================================================
 CREATE TABLE pets (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id      UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   name          TEXT NOT NULL,
   species       TEXT NOT NULL CHECK (species IN (
@@ -71,7 +70,7 @@ CREATE POLICY "Padres gestionan mascotas de sus niños"
 -- ENTRADAS DEL DIARIO
 -- ============================================================
 CREATE TABLE diary_entries (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id              UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   audio_storage_path    TEXT,
   audio_duration_seconds INT NOT NULL DEFAULT 0,
@@ -98,7 +97,7 @@ CREATE POLICY "Padres ven entradas de sus niños"
 -- RESÚMENES PARENTALES
 -- ============================================================
 CREATE TABLE parent_summaries (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id        UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   period          TEXT NOT NULL CHECK (period IN ('daily', 'weekly')),
   period_start    DATE NOT NULL,
@@ -120,7 +119,7 @@ CREATE POLICY "Padres ven resúmenes de sus niños"
 -- ALERTAS CRÍTICAS
 -- ============================================================
 CREATE TABLE parent_alerts (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id        UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   diary_entry_id  UUID REFERENCES diary_entries(id) ON DELETE SET NULL,
   alert_type      TEXT NOT NULL CHECK (alert_type IN ('bullying','self_harm','abuse','severe_distress')),
@@ -139,7 +138,7 @@ CREATE POLICY "Padres ven alertas de sus niños"
 -- ECONOMÍA DE GEMAS
 -- ============================================================
 CREATE TABLE gem_transactions (
-  id        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id  UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   amount    INT NOT NULL,
   reason    TEXT NOT NULL CHECK (reason IN (
@@ -164,7 +163,7 @@ GROUP BY child_id;
 -- RACHAS
 -- ============================================================
 CREATE TABLE streaks (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id        UUID NOT NULL UNIQUE REFERENCES children(id) ON DELETE CASCADE,
   current_streak  INT NOT NULL DEFAULT 0,
   longest_streak  INT NOT NULL DEFAULT 0,
@@ -181,7 +180,7 @@ CREATE POLICY "Padres ven rachas de sus niños"
 -- CATÁLOGO DEL MARKETPLACE
 -- ============================================================
 CREATE TABLE shop_items (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category        TEXT NOT NULL CHECK (category IN ('outfit','accessory','effect','animation','species')),
   name            TEXT NOT NULL,
   description     TEXT NOT NULL DEFAULT '',
@@ -205,7 +204,7 @@ CREATE POLICY "Catálogo visible para todos los autenticados"
 -- INVENTARIO DEL NIÑO
 -- ============================================================
 CREATE TABLE child_inventory (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   child_id    UUID NOT NULL REFERENCES children(id) ON DELETE CASCADE,
   shop_item_id UUID NOT NULL REFERENCES shop_items(id),
   acquired_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
