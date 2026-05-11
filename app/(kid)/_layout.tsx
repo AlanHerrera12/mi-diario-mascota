@@ -9,6 +9,10 @@ export default function KidLayout() {
       <Stack.Screen name="goodnight" />
       <Stack.Screen name="wardrobe" />
       <Stack.Screen name="shop" />
+      <Stack.Screen name="mini-games" options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="breathing" options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="stars" options={{ animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="memory" options={{ animation: 'slide_from_bottom' }} />
     </Stack>
   );
 }

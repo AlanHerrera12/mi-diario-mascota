@@ -84,15 +84,23 @@ export default function GoodnightScreen() {
         </Text>
       </Animated.View>
 
-      {/* TODO (Fase 7): Mini-juegos pre-sueño aquí */}
+      {/* Botones */}
+      <View className="px-8 pb-10 gap-3">
+        {/* Mini-juegos pre-sueño */}
+        <Pressable
+          onPress={() => router.push('/(kid)/mini-games')}
+          className="bg-indigo-800 rounded-4xl py-5 items-center active:bg-indigo-700"
+        >
+          <Text className="text-2xl mb-1">🎮</Text>
+          <Text className="text-white text-lg font-bold">Jugar antes de dormir</Text>
+          <Text className="text-indigo-400 text-xs mt-0.5">Ganás 💎 por cada juego</Text>
+        </Pressable>
 
-      {/* Botón de volver al inicio */}
-      <View className="px-8 pb-10">
         <Pressable
           onPress={() => router.replace('/(kid)/home')}
-          className="border border-indigo-400 rounded-4xl py-5 items-center active:bg-indigo-900"
+          className="border border-indigo-700 rounded-4xl py-4 items-center active:bg-indigo-900"
         >
-          <Text className="text-indigo-300 text-lg font-semibold">Volver al inicio</Text>
+          <Text className="text-indigo-400 text-base font-semibold">Volver al inicio</Text>
         </Pressable>
       </View>
     </SafeAreaView>
