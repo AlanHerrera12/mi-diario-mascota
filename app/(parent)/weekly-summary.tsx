@@ -7,6 +7,7 @@ import {
   useLatestSummary,
   aggregateEmotions,
   averageSentiment,
+  type WeeklyEntryRaw,
 } from '../../src/features/parental-controls/useParentDashboard';
 
 export default function WeeklySummaryScreen() {
@@ -19,12 +20,12 @@ export default function WeeklySummaryScreen() {
   const avgSentiment = averageSentiment(entries);
   const talkDays = entries.length;
   const totalAudioMin = Math.round(
-    entries.reduce((acc, e) => acc + ((e as any).audio_duration_seconds ?? 0), 0) / 60,
+    entries.reduce((acc: number, e: WeeklyEntryRaw) => acc + (e.audio_duration_seconds ?? 0), 0) / 60,
   );
 
   const allKeywords: string[] = [];
-  for (const e of entries) {
-    for (const kw of (e as any).keywords ?? []) {
+  for (const e of entries as WeeklyEntryRaw[]) {
+    for (const kw of e.keywords ?? []) {
       if (!allKeywords.includes(kw)) allKeywords.push(kw);
     }
   }

@@ -120,31 +120,30 @@ export default function MemoryGame() {
     setDeck(prev => {
       const cardA = prev.find(c => c.id === a)!;
       const cardB = prev.find(c => c.id === b)!;
-      const isMatch = cardA.emoji === cardB.emoji;
-
-      if (isMatch) {
+      if (cardA.emoji === cardB.emoji) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        const newDeck = prev.map(c =>
+        return prev.map(c =>
           c.id === a || c.id === b ? { ...c, matched: true, flipped: false } : c,
         );
-        const newMatches = matches + 1;
-        setMatches(newMatches);
-        if (newMatches === PAIRS.length) {
-          setTimeout(() => handleComplete(), 400);
-        }
-        setChecking(false);
-        setSelected([]);
-        return newDeck;
-      } else {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        const newDeck = prev.map(c =>
-          c.id === a || c.id === b ? { ...c, flipped: false } : c,
-        );
-        setChecking(false);
-        setSelected([]);
-        return newDeck;
       }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      return prev.map(c =>
+        c.id === a || c.id === b ? { ...c, flipped: false } : c,
+      );
     });
+    // Check isMatch outside setDeck to avoid reading stale matches
+    setMatches(prev => {
+      const cardA = deck.find(c => c.id === a);
+      const cardB = deck.find(c => c.id === b);
+      if (cardA && cardB && cardA.emoji === cardB.emoji) {
+        const newMatches = prev + 1;
+        if (newMatches === PAIRS.length) setTimeout(handleComplete, 400);
+        return newMatches;
+      }
+      return prev;
+    });
+    setChecking(false);
+    setSelected([]);
   }
 
   async function handleComplete() {

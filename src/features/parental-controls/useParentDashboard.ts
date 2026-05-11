@@ -3,6 +3,14 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/auth.store';
 import type { ParentAlert, ParentSummary, EmotionType } from '../../types';
 
+export interface WeeklyEntryRaw {
+  detected_emotions: EmotionType[];
+  keywords: string[];
+  sentiment_score: number | null;
+  created_at: string;
+  audio_duration_seconds: number | null;
+}
+
 function weekStart() {
   const d = new Date();
   d.setDate(d.getDate() - 6);
@@ -24,7 +32,7 @@ export function useWeeklyEntries(childId: string | undefined) {
         .gte('created_at', weekStart())
         .order('created_at', { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as WeeklyEntryRaw[];
     },
   });
 }
@@ -112,7 +120,7 @@ export function useChildStreak(childId: string | undefined) {
 
 // Agrega emociones de los últimos 7 días en frecuencias
 export function aggregateEmotions(
-  entries: Array<{ detected_emotions: EmotionType[] }>,
+  entries: Pick<WeeklyEntryRaw, 'detected_emotions'>[],
 ): { emotion: EmotionType; count: number; pct: number }[] {
   const freq: Partial<Record<EmotionType, number>> = {};
   let total = 0;
@@ -129,7 +137,7 @@ export function aggregateEmotions(
 }
 
 // Calcula score de sentimiento promedio de la semana
-export function averageSentiment(entries: Array<{ sentiment_score: number | null }>): number {
+export function averageSentiment(entries: Pick<WeeklyEntryRaw, 'sentiment_score'>[]): number {
   const valid = entries.filter(e => e.sentiment_score !== null);
   if (!valid.length) return 0;
   return valid.reduce((acc, e) => acc + (e.sentiment_score ?? 0), 0) / valid.length;

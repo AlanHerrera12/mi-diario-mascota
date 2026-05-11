@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, SafeAreaView, Pressable, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -66,6 +66,7 @@ export default function StarsGame() {
   const [caught, setCaught] = useState(0);
   const [gemsEarned, setGemsEarned] = useState(0);
   const [nextId, setNextId] = useState(0);
+  const caughtRef = useRef(0);
   const { completeGame } = useMiniGame('stars');
 
   const spawnStar = useCallback(() => {
@@ -86,17 +87,15 @@ export default function StarsGame() {
 
   function handleCatch(id: number) {
     setStars(prev => prev.filter(s => s.id !== id));
-    setCaught(prev => {
-      const newCount = prev + 1;
-      if (newCount < TARGET_STARS) {
-        // Spawn 1-2 new stars with slight delay
-        setTimeout(spawnStar, 400);
-        if (newCount % 3 === 0) setTimeout(spawnStar, 700);
-      } else {
-        handleComplete();
-      }
-      return newCount;
-    });
+    caughtRef.current += 1;
+    const newCount = caughtRef.current;
+    setCaught(newCount);
+    if (newCount < TARGET_STARS) {
+      setTimeout(spawnStar, 400);
+      if (newCount % 3 === 0) setTimeout(spawnStar, 700);
+    } else {
+      handleComplete();
+    }
   }
 
   async function handleComplete() {
