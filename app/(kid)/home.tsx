@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import Animated, {
+  useSharedValue, useAnimatedStyle,
+  withRepeat, withSequence, withTiming, Easing,
+} from 'react-native-reanimated';
 import { PetDisplay } from '../../src/components/kid-ui/PetDisplay';
+import { FloatingOrbs } from '../../src/components/shared/FloatingOrbs';
 import { useAuthStore } from '../../src/stores/auth.store';
 import { usePetStore } from '../../src/stores/pet.store';
 import { useGems } from '../../src/features/gems-economy/useGems';
@@ -70,8 +75,31 @@ export default function KidHomeScreen() {
         ? '¡Qué bueno que volviste!'
         : '¿Cómo estás hoy?';
 
+  // Floating pet animation
+  const floatY = useSharedValue(0);
+  const glowScale = useSharedValue(1);
+  useEffect(() => {
+    floatY.value = withRepeat(
+      withSequence(
+        withTiming(-12, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0,  { duration: 2200, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, true,
+    );
+    glowScale.value = withRepeat(
+      withSequence(
+        withTiming(1.08, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0.96, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, true,
+    );
+  }, []);
+  const floatStyle = useAnimatedStyle(() => ({ transform: [{ translateY: floatY.value }] }));
+  const glowStyle = useAnimatedStyle(() => ({ transform: [{ scale: glowScale.value }] }));
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#7C3AED' }}>
+      <FloatingOrbs />
 
       {/* Header: gems + streak */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4 }}>
@@ -255,23 +283,30 @@ export default function KidHomeScreen() {
           />
         </View>
 
-        {/* Pet */}
-        <View
-          style={{
-            backgroundColor: '#C4B5FD',
-            borderRadius: 120,
-            width: 220,
-            height: 220,
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#5B21B6',
-            shadowOpacity: 0.35,
-            shadowRadius: 20,
-            elevation: 10,
-          }}
-        >
-          <PetDisplay pet={pet} mood={mood} size={180} />
-        </View>
+        {/* Pet with float + glow */}
+        <Animated.View style={floatStyle}>
+          {/* Glow ring behind pet */}
+          <Animated.View style={[glowStyle, {
+            position: 'absolute', top: -14, left: -14, right: -14, bottom: -14,
+            borderRadius: 134, backgroundColor: '#A78BFA', opacity: 0.25,
+          }]} />
+          <View
+            style={{
+              backgroundColor: '#C4B5FD',
+              borderRadius: 120,
+              width: 220,
+              height: 220,
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#5B21B6',
+              shadowOpacity: 0.45,
+              shadowRadius: 24,
+              elevation: 12,
+            }}
+          >
+            <PetDisplay pet={pet} mood={mood} size={180} />
+          </View>
+        </Animated.View>
 
         {/* Pet name tag */}
         <View

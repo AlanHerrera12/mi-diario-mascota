@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import {
+  View, Text, Pressable, TextInput,
+  KeyboardAvoidingView, Platform, ScrollView, Alert,
+} from 'react-native';
 import { router } from 'expo-router';
-import { ScreenWrapper } from '../../src/components/shared/ScreenWrapper';
-import { AppTextInput } from '../../src/components/shared/AppTextInput';
-import { PrimaryButton } from '../../src/components/shared/PrimaryButton';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { FloatingOrbs } from '../../src/components/shared/FloatingOrbs';
 import { useParentSignup } from '../../src/features/auth/useParentAuth';
 
 const COUNTRY_OPTIONS = [
@@ -15,6 +17,44 @@ const COUNTRY_OPTIONS = [
   { code: 'CL', label: '🇨🇱 Chile' },
 ];
 
+function Field({
+  label, value, onChangeText, placeholder, secureTextEntry, keyboardType, autoCapitalize, error,
+}: {
+  label: string; value: string; onChangeText: (t: string) => void;
+  placeholder?: string; secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address'; autoCapitalize?: 'none' | 'words';
+  error?: string;
+}) {
+  return (
+    <View style={{ marginBottom: 4 }}>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: '#4C1D95', marginBottom: 6 }}>
+        {label}
+      </Text>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+        placeholder={placeholder}
+        placeholderTextColor="#9CA3AF"
+        keyboardType={keyboardType ?? 'default'}
+        autoCapitalize={autoCapitalize ?? 'none'}
+        style={{
+          borderWidth: 1.5,
+          borderColor: error ? '#F87171' : '#EDE9FE',
+          borderRadius: 16,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          fontSize: 16,
+          color: '#1F2937',
+          backgroundColor: error ? '#FEF2F2' : '#FAFAFA',
+          marginBottom: error ? 4 : 14,
+        }}
+      />
+      {error ? <Text style={{ color: '#EF4444', fontSize: 12, marginBottom: 10 }}>{error}</Text> : null}
+    </View>
+  );
+}
+
 export default function ParentSignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +62,6 @@ export default function ParentSignupScreen() {
   const [fullName, setFullName] = useState('');
   const [countryCode, setCountryCode] = useState('AR');
   const [errors, setErrors] = useState<Record<string, string>>({});
-
   const { signup, loading } = useParentSignup();
 
   function validate() {
@@ -46,83 +85,141 @@ export default function ParentSignupScreen() {
   }
 
   return (
-    <ScreenWrapper bg="bg-white">
-      {/* Header */}
-      <Pressable onPress={() => router.back()} className="mb-6">
-        <Text className="text-primary-500 text-base">← Volver</Text>
-      </Pressable>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1, backgroundColor: '#7C3AED' }}
+    >
+      <FloatingOrbs />
 
-      <Text className="text-2xl font-bold text-gray-900 mb-1">Crear cuenta</Text>
-      <Text className="text-gray-500 mb-8">
-        Esta es la cuenta del adulto responsable. Tu hijo/a no necesita una cuenta.
-      </Text>
-
-      <AppTextInput
-        label="Nombre completo"
-        placeholder="Juan García"
-        value={fullName}
-        onChangeText={setFullName}
-        autoCapitalize="words"
-        error={errors.fullName}
-      />
-
-      <AppTextInput
-        label="Email"
-        placeholder="tu@email.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        error={errors.email}
-      />
-
-      <AppTextInput
-        label="Contraseña"
-        placeholder="Mínimo 8 caracteres"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        error={errors.password}
-      />
-
-      <AppTextInput
-        label="Confirmar contraseña"
-        placeholder="Repetí tu contraseña"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        error={errors.confirmPassword}
-      />
-
-      {/* Selector de país simple */}
-      <View className="mb-6">
-        <Text className="text-sm font-semibold text-gray-700 mb-2">País</Text>
-        <View className="flex-row flex-wrap gap-2">
-          {COUNTRY_OPTIONS.map(c => (
-            <Pressable
-              key={c.code}
-              onPress={() => setCountryCode(c.code)}
-              className={`px-3 py-2 rounded-xl border
-                ${countryCode === c.code
-                  ? 'bg-primary-500 border-primary-500'
-                  : 'bg-gray-50 border-gray-200 active:bg-gray-100'}`}
-            >
-              <Text className={`text-sm font-medium
-                ${countryCode === c.code ? 'text-white' : 'text-gray-700'}`}>
-                {c.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      <PrimaryButton label="Continuar" onPress={handleSignup} loading={loading} />
-
-      <View className="flex-row justify-center mt-6">
-        <Text className="text-gray-500">¿Ya tenés cuenta? </Text>
-        <Pressable onPress={() => router.push('/(auth)/login')}>
-          <Text className="text-primary-500 font-semibold">Iniciá sesión</Text>
+      {/* Top — purple hero */}
+      <Animated.View
+        entering={FadeInDown.duration(600)}
+        style={{ paddingTop: 56, paddingBottom: 28, paddingHorizontal: 24, zIndex: 1 }}
+      >
+        <Pressable onPress={() => router.back()} style={{ marginBottom: 16 }}>
+          <Text style={{ color: '#EDE9FE', fontSize: 16 }}>← Volver</Text>
         </Pressable>
-      </View>
-    </ScreenWrapper>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <View style={{
+            width: 56, height: 56, borderRadius: 18,
+            backgroundColor: '#C4B5FD', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Text style={{ fontSize: 28 }}>🔐</Text>
+          </View>
+          <View>
+            <Text style={{ color: 'white', fontSize: 24, fontWeight: '800' }}>Crear cuenta</Text>
+            <Text style={{ color: '#C4B5FD', fontSize: 13, marginTop: 2 }}>
+              Esta es la cuenta del adulto responsable
+            </Text>
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Bottom — white card */}
+      <Animated.View
+        entering={FadeInUp.delay(200).duration(600)}
+        style={{
+          flex: 1,
+          backgroundColor: 'white',
+          borderTopLeftRadius: 36,
+          borderTopRightRadius: 36,
+          paddingHorizontal: 28,
+          paddingTop: 28,
+          zIndex: 1,
+        }}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <Field
+            label="Nombre completo"
+            placeholder="Juan García"
+            value={fullName}
+            onChangeText={setFullName}
+            autoCapitalize="words"
+            error={errors.fullName}
+          />
+          <Field
+            label="Email"
+            placeholder="tu@email.com"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            error={errors.email}
+          />
+          <Field
+            label="Contraseña"
+            placeholder="Mínimo 8 caracteres"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            error={errors.password}
+          />
+          <Field
+            label="Confirmar contraseña"
+            placeholder="Repetí tu contraseña"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+            error={errors.confirmPassword}
+          />
+
+          {/* País */}
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#4C1D95', marginBottom: 10 }}>
+            País
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+            {COUNTRY_OPTIONS.map(c => (
+              <Pressable
+                key={c.code}
+                onPress={() => setCountryCode(c.code)}
+                style={{
+                  paddingHorizontal: 14,
+                  paddingVertical: 9,
+                  borderRadius: 14,
+                  borderWidth: 1.5,
+                  borderColor: countryCode === c.code ? '#7C3AED' : '#EDE9FE',
+                  backgroundColor: countryCode === c.code ? '#7C3AED' : '#FAFAFA',
+                }}
+              >
+                <Text style={{
+                  fontSize: 13,
+                  fontWeight: '600',
+                  color: countryCode === c.code ? 'white' : '#6B7280',
+                }}>
+                  {c.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <Pressable
+            onPress={handleSignup}
+            disabled={loading}
+            style={({ pressed }) => ({
+              backgroundColor: pressed ? '#6D28D9' : '#7C3AED',
+              borderRadius: 20,
+              paddingVertical: 18,
+              alignItems: 'center',
+              shadowColor: '#7C3AED',
+              shadowOpacity: 0.4,
+              shadowRadius: 12,
+              elevation: 6,
+              opacity: loading ? 0.8 : 1,
+            })}
+          >
+            <Text style={{ color: 'white', fontSize: 17, fontWeight: '800' }}>
+              {loading ? 'Creando cuenta...' : 'Continuar'}
+            </Text>
+          </Pressable>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 32 }}>
+            <Text style={{ color: '#9CA3AF', fontSize: 14 }}>¿Ya tenés cuenta? </Text>
+            <Pressable onPress={() => router.push('/(auth)/login')}>
+              <Text style={{ color: '#7C3AED', fontSize: 14, fontWeight: '700' }}>Iniciá sesión</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </Animated.View>
+    </KeyboardAvoidingView>
   );
 }

@@ -2,114 +2,217 @@ import { useEffect } from 'react';
 import { View, Text, Pressable, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withDelay,
-  withTiming,
-  withRepeat,
-  withSequence,
-  FadeIn,
+  useSharedValue, useAnimatedStyle,
+  withDelay, withTiming, withRepeat, withSequence,
+  FadeIn, FadeInDown, Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { usePetStore } from '../../src/stores/pet.store';
 import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
 
-// Las estrellas se animan de forma independiente
-function Star({ emoji, delay, x, y }: { emoji: string; delay: number; x: string; y: string }) {
-  const opacity = useSharedValue(0);
+// Twinkling star
+function Star({ delay, x, y, size = 16 }: { delay: number; x: string; y: string; size?: number }) {
+  const opacity = useSharedValue(0.2);
+  const scale = useSharedValue(0.8);
   useEffect(() => {
-    opacity.value = withDelay(
-      delay,
-      withRepeat(
-        withSequence(withTiming(1, { duration: 800 }), withTiming(0.3, { duration: 800 })),
-        -1,
-        true,
-      ),
+    opacity.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(1,   { duration: 900, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0.2, { duration: 900, easing: Easing.inOut(Easing.sin) }),
+      ), -1, true,
+    ));
+    scale.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(1.3, { duration: 900 }),
+        withTiming(0.8, { duration: 900 }),
+      ), -1, true,
+    ));
+  }, []);
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+  return (
+    <Animated.Text style={[style, { position: 'absolute', left: x, top: y, fontSize: size }]}>
+      ✦
+    </Animated.Text>
+  );
+}
+
+// Floating moon animation
+function FloatingMoon() {
+  const translateY = useSharedValue(0);
+  useEffect(() => {
+    translateY.value = withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 2500, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0,   { duration: 2500, easing: Easing.inOut(Easing.sin) }),
+      ), -1, true,
     );
   }, []);
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const style = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
   return (
-    <Animated.Text style={[style, { position: 'absolute', left: x, top: y, fontSize: 20 }]}>
-      {emoji}
-    </Animated.Text>
+    <Animated.Text style={[style, { fontSize: 72, textAlign: 'center' }]}>🌙</Animated.Text>
   );
 }
 
 export default function GoodnightScreen() {
   const pet = usePetStore(s => s.pet);
-  const petEmoji = pet?.species === 'dog' ? '🐶' : pet?.species === 'cat' ? '🐱' :
-    pet?.species === 'rabbit' ? '🐰' : pet?.species === 'bear' ? '🐻' :
-    pet?.species === 'elephant' ? '🐘' : pet?.species === 'giraffe' ? '🦒' :
-    pet?.species === 'dragon' ? '🐲' : '🦄';
+
+  const petEmoji =
+    pet?.species === 'dog'      ? '🐶' :
+    pet?.species === 'cat'      ? '🐱' :
+    pet?.species === 'rabbit'   ? '🐰' :
+    pet?.species === 'bear'     ? '🐻' :
+    pet?.species === 'elephant' ? '🐘' :
+    pet?.species === 'giraffe'  ? '🦒' :
+    pet?.species === 'dragon'   ? '🐲' : '🦄';
 
   useEffect(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-indigo-950">
-      {/* Estrellas decorativas */}
-      <View className="absolute inset-0">
-        <Star emoji="⭐" delay={0}    x="10%" y="15%" />
-        <Star emoji="✨" delay={400}  x="75%" y="10%" />
-        <Star emoji="⭐" delay={800}  x="85%" y="35%" />
-        <Star emoji="✨" delay={200}  x="20%" y="45%" />
-        <Star emoji="⭐" delay={600}  x="60%" y="20%" />
-        <Star emoji="✨" delay={1000} x="5%"  y="70%" />
-        <Star emoji="⭐" delay={300}  x="90%" y="65%" />
-        <Star emoji="🌟" delay={500}  x="45%" y="8%"  />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#060318' }}>
+
+      {/* Star field */}
+      <View style={{ position: 'absolute', inset: 0 }} pointerEvents="none">
+        {[
+          { x: '8%',  y: '8%',  delay: 0,    size: 14 },
+          { x: '78%', y: '6%',  delay: 300,  size: 12 },
+          { x: '45%', y: '14%', delay: 700,  size: 10 },
+          { x: '90%', y: '22%', delay: 200,  size: 16 },
+          { x: '15%', y: '30%', delay: 900,  size: 10 },
+          { x: '65%', y: '40%', delay: 500,  size: 12 },
+          { x: '5%',  y: '55%', delay: 1100, size: 14 },
+          { x: '85%', y: '60%', delay: 400,  size: 10 },
+          { x: '35%', y: '72%', delay: 800,  size: 12 },
+          { x: '70%', y: '82%', delay: 150,  size: 14 },
+          { x: '22%', y: '88%', delay: 600,  size: 10 },
+        ].map((s, i) => <Star key={i} {...s} />)}
       </View>
 
-      {/* Contenido central */}
+      {/* Subtle purple nebula blobs */}
+      <View style={{
+        position: 'absolute', top: -60, left: -60,
+        width: 200, height: 200, borderRadius: 100,
+        backgroundColor: '#4C1D95', opacity: 0.25,
+      }} pointerEvents="none" />
+      <View style={{
+        position: 'absolute', bottom: 60, right: -40,
+        width: 160, height: 160, borderRadius: 80,
+        backgroundColor: '#1E1B4B', opacity: 0.4,
+      }} pointerEvents="none" />
+
+      {/* Central content */}
       <Animated.View
-        entering={FadeIn.delay(200).duration(800)}
-        className="flex-1 items-center justify-center px-8"
+        entering={FadeIn.delay(200).duration(900)}
+        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}
       >
-        {/* Luna */}
-        <Text className="text-8xl mb-4">🌙</Text>
+        <FloatingMoon />
 
-        {/* Mascota durmiendo */}
-        <View className="mb-6 items-center justify-center">
-          {pet?.species === 'dog' ? (
-            <PetDogSVG size={160} mood="sleepy" baseColor={pet?.customization.baseColor} />
-          ) : (
-            <View
-              className="w-40 h-40 rounded-full items-center justify-center"
-              style={{ backgroundColor: (pet?.customization.baseColor ?? '#FF9800') + '33' }}
-            >
-              <Text className="text-7xl">{petEmoji}</Text>
-              <Text className="text-3xl absolute bottom-2 right-2">😴</Text>
-            </View>
-          )}
-        </View>
+        {/* Pet sleeping */}
+        <Animated.View
+          entering={FadeInDown.delay(400).duration(700)}
+          style={{ marginTop: 20, marginBottom: 24 }}
+        >
+          {/* Glow ring */}
+          <View style={{
+            position: 'absolute', top: -16, left: -16, right: -16, bottom: -16,
+            borderRadius: 120, backgroundColor: '#4C1D95', opacity: 0.35,
+          }} />
+          <View style={{
+            backgroundColor: '#1E1B4B',
+            borderRadius: 100,
+            width: 180, height: 180,
+            alignItems: 'center', justifyContent: 'center',
+            borderWidth: 1, borderColor: 'rgba(129,140,248,0.25)',
+            shadowColor: '#818CF8', shadowOpacity: 0.3, shadowRadius: 20,
+            elevation: 10,
+          }}>
+            {pet?.species === 'dog' ? (
+              <PetDogSVG size={150} mood="sleepy" baseColor={pet?.customization?.baseColor} />
+            ) : (
+              <>
+                <Text style={{ fontSize: 70 }}>{petEmoji}</Text>
+                <Text style={{ fontSize: 24, position: 'absolute', bottom: 16, right: 20 }}>😴</Text>
+              </>
+            )}
+          </View>
+        </Animated.View>
 
-        <Text className="text-3xl font-bold text-white text-center mb-2">
+        {/* Zzz dots */}
+        <Animated.View
+          entering={FadeIn.delay(600).duration(600)}
+          style={{ flexDirection: 'row', gap: 4, marginBottom: 20 }}
+        >
+          {['Z', 'Z', 'z'].map((z, i) => (
+            <Text key={i} style={{
+              color: '#818CF8', fontWeight: '800',
+              fontSize: i === 2 ? 12 : 16,
+              opacity: 0.6 - i * 0.1,
+            }}>{z}</Text>
+          ))}
+        </Animated.View>
+
+        <Animated.Text
+          entering={FadeIn.delay(500).duration(700)}
+          style={{ fontSize: 28, fontWeight: '800', color: 'white', textAlign: 'center', marginBottom: 8 }}
+        >
           Buenas noches{pet?.name ? `, ${pet.name}` : ''} 🌙
-        </Text>
-        <Text className="text-indigo-300 text-base text-center leading-6">
+        </Animated.Text>
+        <Animated.Text
+          entering={FadeIn.delay(600).duration(700)}
+          style={{ color: '#818CF8', fontSize: 15, textAlign: 'center', lineHeight: 22 }}
+        >
           Gracias por contarme tu día.{'\n'}¡Hasta mañana!
-        </Text>
+        </Animated.Text>
       </Animated.View>
 
-      {/* Botones */}
-      <View className="px-8 pb-10 gap-3">
-        {/* Mini-juegos pre-sueño */}
+      {/* Bottom buttons */}
+      <Animated.View
+        entering={FadeInDown.delay(700).duration(600)}
+        style={{ paddingHorizontal: 24, paddingBottom: 36, gap: 12 }}
+      >
+        {/* Mini-games CTA */}
         <Pressable
           onPress={() => router.push('/(kid)/mini-games')}
-          className="bg-indigo-800 rounded-4xl py-5 items-center active:bg-indigo-700"
+          style={({ pressed }) => ({
+            backgroundColor: pressed ? '#1E1B4B' : '#312E81',
+            borderRadius: 28,
+            paddingVertical: 20,
+            alignItems: 'center',
+            gap: 2,
+            borderWidth: 1,
+            borderColor: 'rgba(129,140,248,0.35)',
+            shadowColor: '#6366F1',
+            shadowOpacity: 0.35,
+            shadowRadius: 12,
+            elevation: 6,
+          })}
         >
-          <Text className="text-2xl mb-1">🎮</Text>
-          <Text className="text-white text-lg font-bold">Jugar antes de dormir</Text>
-          <Text className="text-indigo-400 text-xs mt-0.5">Ganás 💎 por cada juego</Text>
+          <Text style={{ fontSize: 28, marginBottom: 2 }}>🎮</Text>
+          <Text style={{ color: 'white', fontSize: 17, fontWeight: '800' }}>
+            Jugar antes de dormir
+          </Text>
+          <Text style={{ color: '#818CF8', fontSize: 12, marginTop: 2 }}>
+            +⭐ por cada juego completado
+          </Text>
         </Pressable>
 
         <Pressable
           onPress={() => router.replace('/(kid)/home')}
-          className="border border-indigo-700 rounded-4xl py-4 items-center active:bg-indigo-900"
+          style={({ pressed }) => ({
+            borderWidth: 1, borderColor: 'rgba(129,140,248,0.25)',
+            borderRadius: 24, paddingVertical: 16, alignItems: 'center',
+            backgroundColor: pressed ? 'rgba(129,140,248,0.1)' : 'transparent',
+          })}
         >
-          <Text className="text-indigo-400 text-base font-semibold">Volver al inicio</Text>
+          <Text style={{ color: '#818CF8', fontSize: 15, fontWeight: '600' }}>
+            Volver al inicio
+          </Text>
         </Pressable>
-      </View>
+      </Animated.View>
     </SafeAreaView>
   );
 }

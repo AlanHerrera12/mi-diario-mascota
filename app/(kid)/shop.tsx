@@ -3,6 +3,7 @@ import {
   View, Text, FlatList, SafeAreaView, Pressable, ActivityIndicator, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { usePetStore } from '../../src/stores/pet.store';
 import { useInventory } from '../../src/features/shop/useInventory';
 import { useShopItems, useBuyItem, type RawShopItem } from '../../src/features/shop/useShop';
@@ -36,11 +37,11 @@ export default function ShopScreen() {
   async function handleBuy(item: RawShopItem) {
     Alert.alert(
       `¿Comprar ${item.name}?`,
-      `Cuesta ${item.price_gems} 💎. Tu balance: ${gemBalance} 💎`,
+      `Cuesta ${item.price_gems} ⭐. Tu balance: ${gemBalance} ⭐`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Comprar',
+          text: '¡Comprar!',
           onPress: async () => {
             setBuyingId(item.id);
             const ok = await buyItem(item);
@@ -53,65 +54,104 @@ export default function ShopScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-accent-50">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0F0A2E' }}>
+
       {/* Header */}
-      <View className="flex-row items-center justify-between px-5 pt-4 pb-3 bg-white border-b border-gray-100">
+      <View style={{
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+        paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12,
+        borderBottomWidth: 1, borderBottomColor: 'rgba(129,140,248,0.15)',
+      }}>
         <View>
-          <Text className="text-xs text-gray-400">Tienda</Text>
-          <View className="flex-row items-center gap-2">
-            <Text className="text-lg font-bold text-gray-900">Mis gemas:</Text>
-            <View className="flex-row items-center gap-1 bg-primary-50 rounded-xl px-2 py-0.5">
-              <Text className="text-base">💎</Text>
-              <Text className="font-bold text-primary-600 text-base">{gemBalance}</Text>
-            </View>
-          </View>
+          <Text style={{ color: '#818CF8', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>
+            TIENDA
+          </Text>
+          <Text style={{ color: 'white', fontSize: 22, fontWeight: '800', marginTop: 2 }}>
+            Recompensas 🎁
+          </Text>
         </View>
-        <View className="flex-row gap-2">
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {/* Gem balance */}
+          <View style={{
+            flexDirection: 'row', alignItems: 'center', gap: 6,
+            backgroundColor: 'rgba(252,211,77,0.15)',
+            borderRadius: 16, paddingHorizontal: 12, paddingVertical: 8,
+            borderWidth: 1, borderColor: 'rgba(252,211,77,0.3)',
+          }}>
+            <Text style={{ fontSize: 16 }}>⭐</Text>
+            <Text style={{ color: '#FCD34D', fontWeight: '800', fontSize: 15 }}>{gemBalance}</Text>
+          </View>
+
+          {/* Wardrobe */}
           <Pressable
             onPress={() => router.push('/(kid)/wardrobe')}
-            className="bg-accent-100 rounded-xl px-3 py-2 active:bg-accent-200"
+            style={({ pressed }) => ({
+              backgroundColor: pressed ? 'rgba(129,140,248,0.25)' : 'rgba(129,140,248,0.12)',
+              borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8,
+              borderWidth: 1, borderColor: 'rgba(129,140,248,0.3)',
+            })}
           >
-            <Text className="text-accent-700 font-semibold text-sm">👗 Vestidor</Text>
+            <Text style={{ color: '#A5B4FC', fontWeight: '700', fontSize: 13 }}>👗 Vestidor</Text>
           </Pressable>
+
+          {/* Back */}
           <Pressable
             onPress={() => router.back()}
-            className="bg-gray-100 rounded-xl px-3 py-2 active:bg-gray-200"
+            style={({ pressed }) => ({
+              backgroundColor: pressed ? 'rgba(129,140,248,0.25)' : 'rgba(129,140,248,0.12)',
+              borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8,
+              borderWidth: 1, borderColor: 'rgba(129,140,248,0.3)',
+            })}
           >
-            <Text className="text-gray-600 font-semibold text-sm">‹ Volver</Text>
+            <Text style={{ color: '#A5B4FC', fontWeight: '700', fontSize: 14 }}>‹ Volver</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* Categorías */}
-      <View className="bg-white border-b border-gray-100">
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={CATEGORIES}
-          keyExtractor={c => c.key}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}
-          renderItem={({ item: cat }) => {
-            const isActive = activeCategory === cat.key;
-            return (
-              <Pressable
-                onPress={() => setActiveCategory(cat.key)}
-                className={`flex-row items-center gap-1.5 px-4 py-2 rounded-full ${isActive ? 'bg-primary-500' : 'bg-gray-100'}`}
-              >
-                <Text>{cat.emoji}</Text>
-                <Text className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-gray-600'}`}>
-                  {cat.label}
-                </Text>
-              </Pressable>
-            );
-          }}
-        />
-      </View>
+      {/* Category pills */}
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={CATEGORIES}
+        keyExtractor={c => c.key}
+        style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: 'rgba(129,140,248,0.1)' }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}
+        renderItem={({ item: cat }) => {
+          const isActive = activeCategory === cat.key;
+          return (
+            <Pressable
+              onPress={() => setActiveCategory(cat.key)}
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: 6,
+                paddingHorizontal: 14, paddingVertical: 8,
+                borderRadius: 20,
+                backgroundColor: isActive ? '#7C3AED' : 'rgba(129,140,248,0.1)',
+                borderWidth: 1,
+                borderColor: isActive ? '#8B5CF6' : 'rgba(129,140,248,0.2)',
+                shadowColor: isActive ? '#7C3AED' : 'transparent',
+                shadowOpacity: 0.4,
+                shadowRadius: 6,
+                elevation: isActive ? 4 : 0,
+              }}
+            >
+              <Text style={{ fontSize: 14 }}>{cat.emoji}</Text>
+              <Text style={{
+                fontSize: 13, fontWeight: '700',
+                color: isActive ? 'white' : '#818CF8',
+              }}>
+                {cat.label}
+              </Text>
+            </Pressable>
+          );
+        }}
+      />
 
-      {/* Items */}
+      {/* Items grid */}
       {loadingItems ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#FF9800" size="large" />
-          <Text className="text-gray-400 mt-3">Cargando tienda…</Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+          <ActivityIndicator color="#8B5CF6" size="large" />
+          <Text style={{ color: '#818CF8', fontSize: 14 }}>Cargando tienda…</Text>
         </View>
       ) : (
         <FlatList
@@ -122,13 +162,18 @@ export default function ShopScreen() {
           contentContainerStyle={{ padding: 16, gap: 12 }}
           columnWrapperStyle={{ gap: 12 }}
           ListEmptyComponent={
-            <View className="py-16 items-center">
-              <Text className="text-5xl mb-3">🏪</Text>
-              <Text className="text-gray-500 font-semibold">Nada en esta categoría todavía</Text>
+            <View style={{ paddingVertical: 64, alignItems: 'center', gap: 12 }}>
+              <Text style={{ fontSize: 52 }}>🏪</Text>
+              <Text style={{ color: '#818CF8', fontWeight: '600', fontSize: 15 }}>
+                Nada en esta categoría todavía
+              </Text>
             </View>
           }
-          renderItem={({ item }) => (
-            <View className="flex-1">
+          renderItem={({ item, index }) => (
+            <Animated.View
+              entering={FadeInDown.delay(index * 60).duration(400)}
+              style={{ flex: 1 }}
+            >
               <ShopItemCard
                 item={item}
                 owned={ownedIds.has(item.id)}
@@ -136,7 +181,7 @@ export default function ShopScreen() {
                 onBuy={() => handleBuy(item)}
                 loading={buyingId === item.id}
               />
-            </View>
+            </Animated.View>
           )}
         />
       )}
