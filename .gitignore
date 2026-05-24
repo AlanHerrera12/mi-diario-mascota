@@ -48,3 +48,6 @@ supabase/config.toml
 # generated native folders
 /ios
 /android
+
+# Claude Code
+.claude/
