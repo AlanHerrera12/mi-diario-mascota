@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "creating-reanimated-animations": {
+      "source": "estevg/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/creating-reanimated-animations/skills/creating-reanimated-animations/SKILL.md",
+      "computedHash": "3bbe9f16bc5ff898c55854a9c657aa999f55b748f676d17b19c39e5ab4899831"
+    },
+    "expo-react-native-typescript": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "expo-react-native-typescript/SKILL.md",
+      "computedHash": "ae6a3db1d4b800bf9d69e64600bbdccadbacd22b127feeb71a041c56ad4f1e55"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "lottie": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "lottie/SKILL.md",
+      "computedHash": "14914410b16c5c0fd56033256f24bd7a8f1eb821bba8b0589c6e466f83c931ef"
+    },
+    "lottie-animations": {
+      "source": "freshtechbro/claudedesignskills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/lottie-animations/SKILL.md",
+      "computedHash": "e00a91be81589b19452e1105b82759d68772f47e4c4775e0131eb35d65be9ee1"
+    },
+    "supabase": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "supabase/SKILL.md",
+      "computedHash": "c0f5d2375d88424f3ceeafdc17dc6ada0f80007f75acbf3de5c981f8d788d1fb"
+    },
+    "svg-animations": {
+      "source": "supermemoryai/skills",
+      "sourceType": "github",
+      "skillPath": "svg-animations/SKILL.md",
+      "computedHash": "f25711af04ba7a0f8e662f41cdf707423102eef303dfd3dc7d48d35bb83c7ec4"
+    },
+    "svg-assembly-animator": {
+      "source": "vibe-motion/skills",
+      "sourceType": "github",
+      "skillPath": "svg-assembly-animator/SKILL.md",
+      "computedHash": "785cc27f1e3156ba877860c847d94c5a01695ab1161273f19d2b08a1a9f0cd32"
+    }
+  }
+}
