@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { ScreenWrapper } from '../../src/components/shared/ScreenWrapper';
 import { AppTextInput } from '../../src/components/shared/AppTextInput';
@@ -10,6 +10,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [transitioning, setTransitioning] = useState(false);
 
   const { login, loading } = useParentLogin();
 
@@ -22,18 +23,27 @@ export default function LoginScreen() {
   }
 
   async function handleLogin() {
+    setErrors({});
     if (!validate()) return;
-    const result = await login(email, password);
-    if (!result) {
-      Alert.alert('Error', 'Email o contraseña incorrectos.');
+    const ok = await login(email, password);
+    if (!ok) {
+      setErrors({ general: 'Email o contraseña incorrectos. Verificá tus datos.' });
       return;
     }
-    if (result.hasChild) {
-      router.replace('/(kid)/home');
-    } else {
-      // Cuenta creada pero sin perfil del niño aún
-      router.replace('/(auth)/child-setup');
-    }
+    // Auth OK — _layout.tsx onAuthStateChange carga datos y navega
+    setTransitioning(true);
+  }
+
+  if (transitioning) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#FF9800', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 48, marginBottom: 16 }}>🐾</Text>
+        <ActivityIndicator size="large" color="white" />
+        <Text style={{ color: 'white', marginTop: 16, fontSize: 18, fontWeight: '600' }}>
+          Entrando...
+        </Text>
+      </View>
+    );
   }
 
   return (
@@ -72,6 +82,12 @@ export default function LoginScreen() {
       <Pressable className="self-end mb-6">
         <Text className="text-primary-500 text-sm">¿Olvidaste tu contraseña?</Text>
       </Pressable>
+
+      {errors.general ? (
+        <View className="bg-red-50 border border-red-300 rounded-xl px-4 py-3 mb-4">
+          <Text className="text-red-600 text-sm text-center">{errors.general}</Text>
+        </View>
+      ) : null}
 
       <PrimaryButton label="Iniciar sesión" onPress={handleLogin} loading={loading} />
 

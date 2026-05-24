@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import { SecureStorage } from '../../lib/secure-storage';
 import { supabase } from '../../lib/supabase';
 import { hashPin, generateAvatarSeed } from '../../lib/encryption';
 import { useAuthStore } from '../../stores/auth.store';
@@ -32,8 +32,8 @@ export function useParentSignup() {
       // El registro en la tabla `parents` se completa en parent-verify
       // cuando el padre acepta el consentimiento y crea su PIN.
       // Guardamos el nombre y país temporalmente en SecureStore para ese paso.
-      await SecureStore.setItemAsync('signup_full_name', fullName);
-      await SecureStore.setItemAsync('signup_country_code', countryCode);
+      await SecureStorage.setItem('signup_full_name', fullName);
+      await SecureStorage.setItem('signup_country_code', countryCode);
       return { userId: data.user.id };
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error desconocido';
@@ -66,8 +66,8 @@ export function useParentVerify() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Sesión expirada. Por favor iniciá sesión de nuevo.');
 
-      const fullName = await SecureStore.getItemAsync('signup_full_name') ?? '';
-      const countryCode = await SecureStore.getItemAsync('signup_country_code') ?? 'AR';
+      const fullName = await SecureStorage.getItem('signup_full_name') ?? '';
+      const countryCode = await SecureStorage.getItem('signup_country_code') ?? 'AR';
       const pinHash = await hashPin(pin);
 
       const { data: parent, error: insertError } = await supabase
@@ -88,12 +88,10 @@ export function useParentVerify() {
 
       if (insertError) throw insertError;
 
-      // Guardar PIN hash en SecureStore para validación offline rápida
-      await SecureStore.setItemAsync(SECURE_KEY_PIN_HASH, pinHash);
+      await SecureStorage.setItem(SECURE_KEY_PIN_HASH, pinHash);
 
-      // Limpiar datos temporales
-      await SecureStore.deleteItemAsync('signup_full_name');
-      await SecureStore.deleteItemAsync('signup_country_code');
+      await SecureStorage.removeItem('signup_full_name');
+      await SecureStorage.removeItem('signup_country_code');
 
       setParent(parent);
       return true;
@@ -169,7 +167,7 @@ export function useChildSetup() {
       await supabase.from('streaks').insert({ child_id: child.id });
 
       // Guardar el child_id activo en SecureStore para carga rápida al reiniciar
-      await SecureStore.setItemAsync(SECURE_KEY_CHILD_ID, child.id);
+      await SecureStorage.setItem(SECURE_KEY_CHILD_ID, child.id);
 
       setActiveChild(child as Child);
       setPet(pet as Pet);
@@ -190,65 +188,27 @@ export function useChildSetup() {
 
 export function useParentLogin() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const setParent = useAuthStore(s => s.setParent);
-  const setActiveChild = useAuthStore(s => s.setActiveChild);
-  const setPet = usePetStore(s => s.setPet);
-
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string): Promise<boolean> {
     setLoading(true);
-    setError(null);
     try {
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
-
-      // Cargar datos del padre
-      const { data: parent, error: parentError } = await supabase
-        .from('parents')
-        .select('*')
-        .single();
-      if (parentError) throw parentError;
-
-      // Cargar el primer hijo (MVP: un hijo por cuenta)
-      const { data: children, error: childError } = await supabase
-        .from('children')
-        .select('*')
-        .limit(1);
-      if (childError) throw childError;
-
-      const child = children?.[0] ?? null;
-
-      if (child) {
-        const { data: pets } = await supabase
-          .from('pets')
-          .select('*')
-          .eq('child_id', child.id)
-          .limit(1);
-        const pet = pets?.[0] ?? null;
-
-        await SecureStore.setItemAsync(SECURE_KEY_CHILD_ID, child.id);
-        setActiveChild(child as Child);
-        if (pet) setPet(pet as Pet);
-      }
-
-      setParent(parent);
-      return { hasChild: !!child };
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Email o contraseña incorrectos.';
-      setError(msg);
-      return null;
+      return true;
+      // Navigation + data loading handled by _layout.tsx onAuthStateChange
+    } catch {
+      return false;
     } finally {
       setLoading(false);
     }
   }
 
-  return { login, loading, error };
+  return { login, loading };
 }
 
 // ---- Validación de PIN (dashboard parental) --------------------------------
 
 export async function validateParentPin(pin: string): Promise<boolean> {
-  const storedHash = await SecureStore.getItemAsync(SECURE_KEY_PIN_HASH);
+  const storedHash = await SecureStorage.getItem(SECURE_KEY_PIN_HASH);
   if (!storedHash) return false;
   const inputHash = await hashPin(pin);
   return inputHash === storedHash;
@@ -258,6 +218,6 @@ export async function validateParentPin(pin: string): Promise<boolean> {
 
 export async function signOut() {
   await supabase.auth.signOut();
-  await SecureStore.deleteItemAsync(SECURE_KEY_PIN_HASH);
-  await SecureStore.deleteItemAsync(SECURE_KEY_CHILD_ID);
+  await SecureStorage.removeItem(SECURE_KEY_PIN_HASH);
+  await SecureStorage.removeItem(SECURE_KEY_CHILD_ID);
 }

@@ -20,6 +20,28 @@ export interface RawShopItem {
   available_until: string | null;
 }
 
+// Fallback items shown when the shop_items table is empty (before DB seed runs)
+const DEMO_ITEMS: RawShopItem[] = [
+  { id: 'd1', category: 'outfit',     name: 'Sombrero de explorador', description: 'Un sombrero perfecto para aventureros',   price_gems: 50,   price_real_cents: null, is_premium_only: false, rarity: 'common',    asset_url: '🎩', preview_url: '🎩', available_from: null, available_until: null },
+  { id: 'd2', category: 'outfit',     name: 'Capa de superhéroe',     description: 'Vuela con estilo',                          price_gems: 80,   price_real_cents: null, is_premium_only: false, rarity: 'common',    asset_url: '🦸', preview_url: '🦸', available_from: null, available_until: null },
+  { id: 'd3', category: 'outfit',     name: 'Corona dorada',          description: 'Para la mascota más real del reino',        price_gems: 150,  price_real_cents: null, is_premium_only: false, rarity: 'rare',      asset_url: '👑', preview_url: '👑', available_from: null, available_until: null },
+  { id: 'd4', category: 'outfit',     name: 'Traje de astronauta',    description: 'Listo para explorar el espacio',            price_gems: 200,  price_real_cents: null, is_premium_only: false, rarity: 'rare',      asset_url: '🚀', preview_url: '🚀', available_from: null, available_until: null },
+  { id: 'd5', category: 'outfit',     name: 'Armadura épica',         description: 'Protección máxima y estilo total',          price_gems: 400,  price_real_cents: null, is_premium_only: false, rarity: 'epic',      asset_url: '🛡️', preview_url: '🛡️', available_from: null, available_until: null },
+  { id: 'd6', category: 'outfit',     name: 'Traje legendario',       description: 'Solo para los más valientes',               price_gems: 1000, price_real_cents: null, is_premium_only: false, rarity: 'legendary', asset_url: '✨', preview_url: '✨', available_from: null, available_until: null },
+  { id: 'd7', category: 'accessory',  name: 'Collar de flores',       description: 'Colorido y alegre',                         price_gems: 30,   price_real_cents: null, is_premium_only: false, rarity: 'common',    asset_url: '🌸', preview_url: '🌸', available_from: null, available_until: null },
+  { id: 'd8', category: 'accessory',  name: 'Gafas de sol',           description: 'Cool total',                                price_gems: 40,   price_real_cents: null, is_premium_only: false, rarity: 'common',    asset_url: '🕶️', preview_url: '🕶️', available_from: null, available_until: null },
+  { id: 'd9', category: 'accessory',  name: 'Alas de mariposa',       description: 'Revolotea con gracia',                      price_gems: 120,  price_real_cents: null, is_premium_only: false, rarity: 'rare',      asset_url: '🦋', preview_url: '🦋', available_from: null, available_until: null },
+  { id: 'd10', category: 'accessory', name: 'Arco iris en la cola',   description: 'Un toque mágico',                           price_gems: 250,  price_real_cents: null, is_premium_only: false, rarity: 'epic',      asset_url: '🌈', preview_url: '🌈', available_from: null, available_until: null },
+  { id: 'd11', category: 'accessory', name: 'Halo brillante',         description: 'Brilla con luz propia',                     price_gems: 600,  price_real_cents: null, is_premium_only: false, rarity: 'legendary', asset_url: '😇', preview_url: '😇', available_from: null, available_until: null },
+  { id: 'd12', category: 'effect',    name: 'Destellos de estrellas', description: 'Dejá un rastro de estrellas al moverte',    price_gems: 80,   price_real_cents: null, is_premium_only: false, rarity: 'common',    asset_url: '⭐', preview_url: '⭐', available_from: null, available_until: null },
+  { id: 'd13', category: 'effect',    name: 'Corazones flotantes',    description: 'Tu mascota irradia amor',                   price_gems: 160,  price_real_cents: null, is_premium_only: false, rarity: 'rare',      asset_url: '💖', preview_url: '💖', available_from: null, available_until: null },
+  { id: 'd14', category: 'effect',    name: 'Aura de fuego',          description: 'Efectos de llamas épicas',                  price_gems: 500,  price_real_cents: null, is_premium_only: false, rarity: 'epic',      asset_url: '🔥', preview_url: '🔥', available_from: null, available_until: null },
+  { id: 'd15', category: 'effect',    name: 'Aura legendaria',        description: 'Magia pura en cada movimiento',             price_gems: 900,  price_real_cents: null, is_premium_only: false, rarity: 'legendary', asset_url: '🌟', preview_url: '🌟', available_from: null, available_until: null },
+  { id: 'd16', category: 'animation', name: 'Baile feliz',            description: 'Tu mascota baila de alegría',               price_gems: 100,  price_real_cents: null, is_premium_only: false, rarity: 'common',    asset_url: '💃', preview_url: '💃', available_from: null, available_until: null },
+  { id: 'd17', category: 'animation', name: 'Vuelta de campana',      description: 'Un giro impresionante',                     price_gems: 200,  price_real_cents: null, is_premium_only: false, rarity: 'rare',      asset_url: '🌀', preview_url: '🌀', available_from: null, available_until: null },
+  { id: 'd18', category: 'animation', name: 'Baile épico',            description: 'La rutina de baile más cool',               price_gems: 500,  price_real_cents: null, is_premium_only: false, rarity: 'epic',      asset_url: '🕺', preview_url: '🕺', available_from: null, available_until: null },
+];
+
 export function useShopItems(category?: ItemCategory) {
   return useQuery({
     queryKey: ['shop-items', category ?? 'all'],
@@ -32,7 +54,9 @@ export function useShopItems(category?: ItemCategory) {
       if (category) query = query.eq('category', category);
       const { data, error } = await query;
       if (error) throw error;
-      return (data ?? []) as RawShopItem[];
+      // Use demo items when the DB table hasn't been seeded yet
+      const items = (data ?? []) as RawShopItem[];
+      return items.length > 0 ? items : DEMO_ITEMS;
     },
   });
 }

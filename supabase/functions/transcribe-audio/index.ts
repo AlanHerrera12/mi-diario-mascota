@@ -1,93 +1,104 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-// ============================================================
-// Edge Function: transcribe-audio
-// Descarga el audio del Storage, llama a Whisper API de OpenAI
-// y guarda la transcripción encriptada en diary_entries
-// NO se usa GPT/Claude para responder al niño — solo transcripción
-// ============================================================
+﻿import { corsHeaders } from '../_shared/cors.ts';
+import { getServiceClient } from '../_shared/supabase.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-serve(async (req: Request) => {
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
-  const { diaryEntryId, childId } = await req.json() as {
-    diaryEntryId: string;
-    childId: string;
-  };
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
   try {
-    // 1. Obtener la entrada del diario para encontrar el audio
-    const { data: entry, error: entryError } = await supabase
+    const { diaryEntryId, childId } = await req.json();
+    if (!diaryEntryId || !childId) {
+      return new Response(JSON.stringify({ error: 'Missing diaryEntryId or childId' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const db = getServiceClient();
+
+    const { data: entry, error: fetchErr } = await db
       .from('diary_entries')
-      .select('audio_storage_path')
+      .select('id, audio_storage_path, audio_duration_seconds')
       .eq('id', diaryEntryId)
       .single();
 
-    if (entryError || !entry?.audio_storage_path) {
-      return new Response(JSON.stringify({ error: 'Entry not found' }), { status: 404 });
+    if (fetchErr || !entry) {
+      return new Response(JSON.stringify({ error: 'Entry not found' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // 2. Descargar el audio desde Storage
-    const { data: audioBlob, error: downloadError } = await supabase.storage
+    if (!entry.audio_storage_path) {
+      return new Response(JSON.stringify({ error: 'No audio path on entry' }), {
+        status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { data: audioBlob, error: storageErr } = await db.storage
       .from('diary-audios')
       .download(entry.audio_storage_path);
 
-    if (downloadError || !audioBlob) {
-      return new Response(JSON.stringify({ error: 'Audio not found' }), { status: 404 });
+    if (storageErr || !audioBlob) {
+      return new Response(JSON.stringify({ error: 'Failed to download audio', detail: storageErr?.message }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // 3. Llamar a Whisper API
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.m4a');
     formData.append('model', 'whisper-1');
     formData.append('language', 'es');
     formData.append('response_format', 'json');
 
-    const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
       body: formData,
     });
 
-    if (!whisperResponse.ok) {
-      throw new Error(`Whisper API error: ${whisperResponse.status}`);
+    if (!whisperRes.ok) {
+      const detail = await whisperRes.text();
+      console.error('Whisper error:', detail);
+      await db.from('diary_entries')
+        .update({ transcript: '[error: transcription failed]' })
+        .eq('id', diaryEntryId);
+      return new Response(JSON.stringify({ error: 'Whisper API failed', detail }), {
+        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    const { text: transcript } = await whisperResponse.json() as { text: string };
+    const { text: transcript } = await whisperRes.json();
 
-    // 4. Guardar transcripción en diary_entries
-    // TODO: encriptar transcript con clave derivada del padre antes de guardar
-    const { error: updateError } = await supabase
+    const { error: updateErr } = await db
       .from('diary_entries')
       .update({ transcript })
       .eq('id', diaryEntryId);
 
-    if (updateError) throw updateError;
+    if (updateErr) {
+      return new Response(JSON.stringify({ error: 'Failed to save transcript' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    // 5. Disparar análisis de sentimiento en background (no bloqueante)
-    await fetch(`${SUPABASE_URL}/functions/v1/analyze-sentiment`, {
+    fetch(`${SUPABASE_URL}/functions/v1/analyze-sentiment`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ diaryEntryId, childId, transcript }),
-    });
+      headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ diaryEntryId, childId }),
+    }).catch((e) => console.error('Failed to trigger analyze-sentiment:', e));
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json' },
+    return new Response(
+      JSON.stringify({ ok: true, diaryEntryId, transcriptLength: transcript.length }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+
+  } catch (err) {
+    console.error('transcribe-audio error:', err);
+    return new Response(JSON.stringify({ error: String(err) }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
-    console.error('[transcribe-audio]', error);
-    return new Response(JSON.stringify({ error: 'Internal error' }), { status: 500 });
   }
 });

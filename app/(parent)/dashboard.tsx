@@ -50,7 +50,7 @@ export default function ParentDashboardScreen() {
         <View>
           <Text className="text-xs text-gray-400">Panel de padres</Text>
           <Text className="text-lg font-bold text-gray-900">
-            {parent?.full_name?.split(' ')[0] ?? 'Hola'} 👋
+            {parent?.fullName?.split(' ')[0] ?? 'Hola'} 👋
           </Text>
         </View>
         <View className="flex-row gap-3 items-center">

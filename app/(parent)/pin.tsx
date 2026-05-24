@@ -48,8 +48,8 @@ export default function ParentPinScreen() {
 
         <Text className="text-2xl font-bold text-gray-900 mb-1">Panel de padres</Text>
         <Text className="text-gray-500 text-center text-sm mb-10 px-4">
-          {parent?.full_name
-            ? `Hola, ${parent.full_name.split(' ')[0]}. Ingresá tu PIN para continuar.`
+          {parent?.fullName
+            ? `Hola, ${parent.fullName.split(' ')[0]}. Ingresá tu PIN para continuar.`
             : 'Ingresá tu PIN para acceder.'}
         </Text>
 

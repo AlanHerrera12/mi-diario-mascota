@@ -12,6 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { usePetStore } from '../../src/stores/pet.store';
+import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
 
 // Las estrellas se animan de forma independiente
 function Star({ emoji, delay, x, y }: { emoji: string; delay: number; x: string; y: string }) {
@@ -68,12 +69,18 @@ export default function GoodnightScreen() {
         <Text className="text-8xl mb-4">🌙</Text>
 
         {/* Mascota durmiendo */}
-        <View
-          className="w-40 h-40 rounded-full items-center justify-center mb-6"
-          style={{ backgroundColor: (pet?.customization.baseColor ?? '#FF9800') + '33' }}
-        >
-          <Text className="text-7xl">{petEmoji}</Text>
-          <Text className="text-3xl absolute bottom-2 right-2">😴</Text>
+        <View className="mb-6 items-center justify-center">
+          {pet?.species === 'dog' ? (
+            <PetDogSVG size={160} mood="sleepy" baseColor={pet?.customization.baseColor} />
+          ) : (
+            <View
+              className="w-40 h-40 rounded-full items-center justify-center"
+              style={{ backgroundColor: (pet?.customization.baseColor ?? '#FF9800') + '33' }}
+            >
+              <Text className="text-7xl">{petEmoji}</Text>
+              <Text className="text-3xl absolute bottom-2 right-2">😴</Text>
+            </View>
+          )}
         </View>
 
         <Text className="text-3xl font-bold text-white text-center mb-2">

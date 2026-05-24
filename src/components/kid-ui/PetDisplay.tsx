@@ -9,6 +9,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import type { Pet } from '../../types';
+import { PetDogSVG } from './PetDogSVG';
 
 // TODO (assets): reemplazar con <RiveAnimation> cuando tengamos los .riv
 // Los nombres de state machine deben ser: idle, listening, happy, sleepy, missing_you
@@ -89,14 +90,27 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
           {
             width: size,
             height: size,
-            borderRadius: size / 2,
-            backgroundColor: pet.customization.baseColor + '33', // 20% opacity
             alignItems: 'center',
             justifyContent: 'center',
           },
         ]}
       >
-        <Text style={{ fontSize: size * 0.5 }}>{emoji}</Text>
+        {pet.species === 'dog' ? (
+          <PetDogSVG size={size} mood={mood} baseColor={pet.customization.baseColor} />
+        ) : (
+          <View
+            style={{
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              backgroundColor: pet.customization.baseColor + '33',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ fontSize: size * 0.5 }}>{emoji}</Text>
+          </View>
+        )}
         {suffix ? (
           <Text
             style={{ fontSize: size * 0.22, position: 'absolute', bottom: size * 0.08, right: size * 0.08 }}

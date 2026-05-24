@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Audio } from 'expo-av';
 
-type RecordingPhase = 'idle' | 'recording' | 'processing' | 'done' | 'error';
+type RecordingPhase = 'idle' | 'recording' | 'paused' | 'processing' | 'done' | 'error';
 
 interface RecordingState {
   phase: RecordingPhase;

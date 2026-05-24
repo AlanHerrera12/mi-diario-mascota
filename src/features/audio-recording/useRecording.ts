@@ -119,6 +119,20 @@ export function useRecording() {
     }
   }, [recording, child, phase]);
 
+  const pause = useCallback(async () => {
+    if (!recording || phase !== 'recording') return;
+    stopTimer();
+    try { await recording.pauseAsync(); } catch { /* ignorar en web */ }
+    setPhase('paused');
+  }, [recording, phase]);
+
+  const resume = useCallback(async () => {
+    if (!recording || phase !== 'paused') return;
+    try { await recording.resumeAsync(); } catch { /* ignorar en web */ }
+    startTimer();
+    setPhase('recording');
+  }, [recording, phase]);
+
   const cancel = useCallback(async () => {
     stopTimer();
     if (recording) {
@@ -128,5 +142,5 @@ export function useRecording() {
     reset();
   }, [recording]);
 
-  return { phase, elapsedSeconds, hasReachedMinimum, begin, finish, cancel };
+  return { phase, elapsedSeconds, hasReachedMinimum, begin, finish, pause, resume, cancel };
 }
