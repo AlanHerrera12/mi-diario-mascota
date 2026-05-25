@@ -45,7 +45,8 @@ export function useStreak() {
 
     const today = todayDate();
     if (existing.last_talk_date === today) {
-      // Ya habló hoy — no sumar racha ni gemas
+      // Ya habló hoy — no sumar racha ni gemas, but ensure local date is set
+      usePetStore.getState().setLastTalkDate(today);
       return { newStreak: existing.current_streak, bonusGems: 0 };
     }
 
@@ -59,6 +60,8 @@ export function useStreak() {
       .eq('child_id', child.id);
 
     setStreak(newStreak);
+    // Update local lastTalkDate so pet mood reflects talk immediately
+    usePetStore.getState().setLastTalkDate(today);
 
     // Calcular bonus de gemas por milestone de racha
     let bonusGems = 0;
