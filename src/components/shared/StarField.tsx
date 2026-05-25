@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, withDelay, Easing } from 'react-native-reanimated';
+import { View, Text } from 'react-native';
+import Animated, {
+  useSharedValue, useAnimatedStyle,
+  withRepeat, withSequence, withTiming, withDelay, Easing,
+} from 'react-native-reanimated';
 
 const DEFAULT_STARS = [
   { x: '5%',  y: '4%',  delay: 0 },   { x: '78%', y: '2%',  delay: 300 },
@@ -27,18 +30,31 @@ function StarDot({ x, y, delay }: { x: string; y: string; delay: number }) {
     ));
   }, []);
 
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const animStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
+  // Use Animated.View (not Animated.Text) so pointerEvents is fully respected on web
   return (
-    <Animated.Text
+    <Animated.View
       pointerEvents="none"
-      style={[style, {
-        position: 'absolute', left: x, top: y,
-        fontSize: 11, color: '#A78BFA',
-      }]}
+      style={[
+        animStyle,
+        {
+          position: 'absolute',
+          left: x,
+          top: y,
+          // CSS passthrough — guarantees no pointer capture on web
+          // @ts-ignore
+          pointerEvents: 'none',
+        },
+      ]}
     >
-      ✦
-    </Animated.Text>
+      <Text
+        selectable={false}
+        style={{ fontSize: 11, color: '#A78BFA', userSelect: 'none' } as any}
+      >
+        ✦
+      </Text>
+    </Animated.View>
   );
 }
 
@@ -52,7 +68,17 @@ export function StarField({ count }: Props) {
     : DEFAULT_STARS;
 
   return (
-    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }} pointerEvents="none">
+    <View
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 0,
+        // CSS passthrough for web
+        // @ts-ignore
+        pointerEvents: 'none',
+      }}
+    >
       {stars.map((s, i) => (
         <StarDot key={i} x={s.x} y={s.y} delay={s.delay} />
       ))}
