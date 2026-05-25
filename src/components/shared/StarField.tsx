@@ -30,10 +30,13 @@ function StarDot({ x, y, delay }: { x: string; y: string; delay: number }) {
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
-    <Animated.Text style={[style, {
-      position: 'absolute', left: x, top: y,
-      fontSize: 11, color: '#A78BFA',
-    }]}>
+    <Animated.Text
+      pointerEvents="none"
+      style={[style, {
+        position: 'absolute', left: x, top: y,
+        fontSize: 11, color: '#A78BFA',
+      }]}
+    >
       ✦
     </Animated.Text>
   );
@@ -49,7 +52,7 @@ export function StarField({ count }: Props) {
     : DEFAULT_STARS;
 
   return (
-    <View style={{ position: 'absolute', inset: 0 }} pointerEvents="none">
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }} pointerEvents="none">
       {stars.map((s, i) => (
         <StarDot key={i} x={s.x} y={s.y} delay={s.delay} />
       ))}

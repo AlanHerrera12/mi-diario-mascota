@@ -105,7 +105,7 @@ export default function WelcomeScreen() {
       </View>
 
       {/* Buttons */}
-      <View style={{ width: '100%', gap: 12, marginTop: 32 }}>
+      <View style={{ width: '100%', gap: 12, marginTop: 32, zIndex: 10 }}>
         <Pressable
           style={({ pressed }) => ({
             backgroundColor: pressed ? '#DB2777' : '#EC4899',
