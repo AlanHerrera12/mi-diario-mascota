@@ -41,7 +41,7 @@ export default function WelcomeScreen() {
   return (
     <View style={{
       flex: 1, backgroundColor: '#0D0626',
-      alignItems: 'center', justifyContent: 'space-between',
+      justifyContent: 'space-between',
       paddingHorizontal: 24, paddingTop: 64, paddingBottom: 48,
     }}>
       {/* Static bg stars — no Reanimated, can't block clicks */}
@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
         backgroundColor: 'rgba(255,255,255,0.08)',
         borderRadius: 24, paddingHorizontal: 24, paddingVertical: 16,
         marginTop: 8, borderWidth: 1, borderColor: 'rgba(129,140,248,0.2)',
-        maxWidth: 300, zIndex: 1,
+        alignSelf: 'center', maxWidth: 300, zIndex: 1,
       }}>
         <Text style={{ fontSize: 18, fontWeight: '700', color: 'white', textAlign: 'center' }}>
           Habla, juega, y gana{' '}
@@ -68,7 +68,7 @@ export default function WelcomeScreen() {
       </View>
 
       {/* Pet area */}
-      <View style={{ alignItems: 'center', marginTop: 32, zIndex: 1 }}>
+      <View style={{ alignItems: 'center', alignSelf: 'center', marginTop: 32, zIndex: 1 }}>
         {/* Left speech bubble */}
         <View style={{
           backgroundColor: 'rgba(129,140,248,0.15)', borderRadius: 16,
@@ -118,8 +118,8 @@ export default function WelcomeScreen() {
         </View>
       </View>
 
-      {/* Buttons — alignSelf:'stretch' fixes width:0 bug under alignItems:'center' on RN Web */}
-      <View style={{ alignSelf: 'stretch', gap: 12, marginTop: 32, zIndex: 10 }}>
+      {/* Buttons — parent has no alignItems:'center' so buttons get full width naturally */}
+      <View style={{ gap: 12, marginTop: 32, zIndex: 10 }}>
         <Pressable
           style={({ pressed }) => ({
             backgroundColor: pressed ? '#DB2777' : '#EC4899',

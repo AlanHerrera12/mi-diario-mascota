@@ -200,6 +200,7 @@ export default function ParentSignupScreen() {
               borderRadius: 20,
               paddingVertical: 18,
               alignItems: 'center',
+              alignSelf: 'stretch',
               shadowColor: '#7C3AED',
               shadowOpacity: 0.5,
               shadowRadius: 12,
