@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView, Platform, ScrollView, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useParentSignup } from '../../src/features/auth/useParentAuth';
 
 const COUNTRY_OPTIONS = [
@@ -91,8 +90,7 @@ export default function ParentSignupScreen() {
       {/* dark bg via root style — no animated overlay */}
 
       {/* Top hero */}
-      <Animated.View
-        entering={FadeInDown.duration(600)}
+      <View
         style={{ paddingTop: 56, paddingBottom: 24, paddingHorizontal: 24, zIndex: 1 }}
       >
         <Pressable onPress={() => router.back()} style={{ marginBottom: 16 }}>
@@ -115,11 +113,10 @@ export default function ParentSignupScreen() {
             </Text>
           </View>
         </View>
-      </Animated.View>
+      </View>
 
       {/* Glass card */}
-      <Animated.View
-        entering={FadeInUp.delay(200).duration(600)}
+      <View
         style={{
           flex: 1,
           backgroundColor: 'rgba(255,255,255,0.05)',
@@ -222,7 +219,7 @@ export default function ParentSignupScreen() {
             </Pressable>
           </View>
         </ScrollView>
-      </Animated.View>
+      </View>
     </KeyboardAvoidingView>
   );
 }

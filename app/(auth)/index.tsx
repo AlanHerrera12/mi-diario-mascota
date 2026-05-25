@@ -118,8 +118,8 @@ export default function WelcomeScreen() {
         </View>
       </View>
 
-      {/* Buttons — zIndex ensures they're always on top */}
-      <View style={{ width: '100%', gap: 12, marginTop: 32, zIndex: 10 }}>
+      {/* Buttons — alignSelf:'stretch' fixes width:0 bug under alignItems:'center' on RN Web */}
+      <View style={{ alignSelf: 'stretch', gap: 12, marginTop: 32, zIndex: 10 }}>
         <Pressable
           style={({ pressed }) => ({
             backgroundColor: pressed ? '#DB2777' : '#EC4899',

@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
 import { useParentLogin } from '../../src/features/auth/useParentAuth';
 
@@ -56,10 +55,7 @@ export default function LoginScreen() {
       {/* bg gradient via backgroundColor on root — no animated overlay */}
 
       {/* Top hero */}
-      <Animated.View
-        entering={FadeInDown.duration(600)}
-        style={{ alignItems: 'center', paddingTop: 60, paddingBottom: 28, zIndex: 1 }}
-      >
+      <View style={{ alignItems: 'center', paddingTop: 60, paddingBottom: 28, zIndex: 1 }}>
         <Pressable
           onPress={() => router.back()}
           style={{ position: 'absolute', top: 60, left: 24 }}
@@ -75,11 +71,10 @@ export default function LoginScreen() {
         <Text style={{ color: '#818CF8', fontSize: 14, marginTop: 4 }}>
           Iniciá sesión con tu cuenta de adulto
         </Text>
-      </Animated.View>
+      </View>
 
       {/* Glass card */}
-      <Animated.View
-        entering={FadeInUp.delay(200).duration(600)}
+      <View
         style={{
           flex: 1,
           backgroundColor: 'rgba(255,255,255,0.05)',
@@ -193,7 +188,7 @@ export default function LoginScreen() {
             </Pressable>
           </View>
         </ScrollView>
-      </Animated.View>
+      </View>
     </KeyboardAvoidingView>
   );
 }
