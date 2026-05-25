@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { StarField } from '../../src/components/shared/StarField';
 import { useParentSignup } from '../../src/features/auth/useParentAuth';
 
 const COUNTRY_OPTIONS = [
@@ -89,7 +88,7 @@ export default function ParentSignupScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1, backgroundColor: '#0D0626' }}
     >
-      <StarField />
+      {/* dark bg via root style — no animated overlay */}
 
       {/* Top hero */}
       <Animated.View

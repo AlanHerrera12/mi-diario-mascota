@@ -6,7 +6,6 @@ import {
 import { router } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
-import { StarField } from '../../src/components/shared/StarField';
 import { useParentLogin } from '../../src/features/auth/useParentAuth';
 
 export default function LoginScreen() {
@@ -39,7 +38,7 @@ export default function LoginScreen() {
   if (transitioning) {
     return (
       <View style={{ flex: 1, backgroundColor: '#0D0626', alignItems: 'center', justifyContent: 'center' }}>
-        <StarField />
+        {/* bg gradient via backgroundColor on root — no animated overlay */}
         <PetDogSVG size={120} mood="happy" />
         <ActivityIndicator size="large" color="#A78BFA" style={{ marginTop: 24 }} />
         <Text style={{ color: 'white', marginTop: 16, fontSize: 18, fontWeight: '800' }}>
@@ -54,7 +53,7 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1, backgroundColor: '#0D0626' }}
     >
-      <StarField />
+      {/* bg gradient via backgroundColor on root — no animated overlay */}
 
       {/* Top hero */}
       <Animated.View
