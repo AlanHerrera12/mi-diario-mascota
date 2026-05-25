@@ -25,7 +25,10 @@ export function useStreak() {
       .select('current_streak, longest_streak, last_talk_date')
       .eq('child_id', child.id)
       .single();
-    if (data) setStreak(data.current_streak);
+    if (data) {
+      setStreak(data.current_streak);
+      usePetStore.getState().setLastTalkDate(data.last_talk_date ?? null);
+    }
   }, [child]);
 
   // Devuelve las gemas de bonus ganadas por racha (0 si no hay milestone)
