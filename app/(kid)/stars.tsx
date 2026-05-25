@@ -8,6 +8,7 @@ import Animated, {
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useMiniGame } from '../../src/features/mini-games/useMiniGame';
+import { playStarSound, playAchievementSound } from '../../src/utils/sounds';
 
 const TARGET_STARS = 12;
 const INITIAL_STARS = 5;
@@ -48,6 +49,7 @@ function StarDot({ star, onCatch }: { star: StarItem; onCatch: (id: number) => v
     scale.value = withSequence(withSpring(2, { damping: 4 }), withTiming(0, { duration: 180 }));
     opacity.value = withTiming(0, { duration: 180 });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    playStarSound();
     setTimeout(() => onCatch(star.id), 180);
   }
 
@@ -131,6 +133,7 @@ export default function StarsGame() {
     setPhase('done');
     setStars([]);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    playAchievementSound();
     const earned = await completeGame();
     setGemsEarned(earned);
   }

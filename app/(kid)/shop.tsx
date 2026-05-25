@@ -10,7 +10,9 @@ import { useInventory } from '../../src/features/shop/useInventory';
 import { useShopItems, useBuyItem, type RawShopItem } from '../../src/features/shop/useShop';
 import { ShopItemCard } from '../../src/components/kid-ui/ShopItemCard';
 import { ItemIllustration } from '../../src/components/kid-ui/ItemIllustration';
+import { PetDisplay } from '../../src/components/kid-ui/PetDisplay';
 import type { ItemCategory } from '../../src/types';
+import { playPurchaseSound } from '../../src/utils/sounds';
 
 const CATEGORIES: { key: ItemCategory | 'all'; label: string; emoji: string }[] = [
   { key: 'all',       label: 'Todo',       emoji: '🛍️' },
@@ -44,6 +46,7 @@ function PreviewModal({
   onBuy: () => void;
   buying: boolean;
 }) {
+  const pet = usePetStore(s => s.pet);
   const canAfford = gemBalance >= (item.price_gems ?? 0);
   const glow = RARITY_GLOW[item.rarity] ?? '#9CA3AF';
 
@@ -89,22 +92,45 @@ function PreviewModal({
 
           {/* Big preview */}
           <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <View style={{
-              width: 120, height: 120, borderRadius: 30,
-              backgroundColor: `${glow}18`,
-              borderWidth: 2, borderColor: `${glow}44`,
-              alignItems: 'center', justifyContent: 'center',
-              shadowColor: glow, shadowOpacity: 0.4, shadowRadius: 16, elevation: 8,
-              marginBottom: 16,
-            }}>
-              <ItemIllustration
-                category={item.category}
-                name={item.name}
-                rarity={item.rarity}
-                speciesKey={item.species_key}
-                size={100}
-              />
-            </View>
+            {/* Show pet wearing the item when possible */}
+            {pet && item.category !== 'species' ? (
+              <View style={{
+                alignItems: 'center', justifyContent: 'center',
+                marginBottom: 8,
+                // Glow ring behind the pet preview
+                shadowColor: glow, shadowOpacity: 0.35, shadowRadius: 20, elevation: 8,
+              }}>
+                <PetDisplay
+                  pet={pet}
+                  mood="happy"
+                  size={130}
+                  showName={false}
+                  previewItem={{
+                    category: item.category,
+                    name: item.name,
+                    rarity: item.rarity,
+                    speciesKey: item.species_key,
+                  }}
+                />
+              </View>
+            ) : (
+              <View style={{
+                width: 130, height: 130, borderRadius: 30,
+                backgroundColor: `${glow}18`,
+                borderWidth: 2, borderColor: `${glow}44`,
+                alignItems: 'center', justifyContent: 'center',
+                shadowColor: glow, shadowOpacity: 0.4, shadowRadius: 16, elevation: 8,
+                marginBottom: 8,
+              }}>
+                <ItemIllustration
+                  category={item.category}
+                  name={item.name}
+                  rarity={item.rarity}
+                  speciesKey={item.species_key}
+                  size={110}
+                />
+              </View>
+            )}
 
             <Text style={{ color: 'white', fontSize: 22, fontWeight: '800', textAlign: 'center' }}>
               {item.name}
@@ -248,6 +274,7 @@ export default function ShopScreen() {
     const ok = await buyItem(preview);
     setBuying(false);
     if (ok) {
+      playPurchaseSound();
       setPreview(null);
     }
   }
@@ -302,17 +329,20 @@ export default function ShopScreen() {
       </View>
 
       {/* Category pills */}
-      <FlatList
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={CATEGORIES}
-        keyExtractor={c => c.key}
-        style={{ flexGrow: 0, borderBottomWidth: 1, borderBottomColor: 'rgba(129,140,248,0.1)' }}
+        style={{
+          flexGrow: 0, flexShrink: 0,
+          borderBottomWidth: 1, borderBottomColor: 'rgba(129,140,248,0.1)',
+        }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}
-        renderItem={({ item: cat }) => {
+      >
+        {CATEGORIES.map(cat => {
           const isActive = activeCategory === cat.key;
           return (
             <Pressable
+              key={cat.key}
               onPress={() => setActiveCategory(cat.key)}
               style={{
                 flexDirection: 'row', alignItems: 'center', gap: 6,
@@ -334,8 +364,8 @@ export default function ShopScreen() {
               </Text>
             </Pressable>
           );
-        }}
-      />
+        })}
+      </ScrollView>
 
       {/* Pet adoption banner */}
       {activeCategory === 'species' && (

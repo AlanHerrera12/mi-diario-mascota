@@ -16,6 +16,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { StarField } from '../../src/components/shared/StarField';
 import { useMiniGame } from '../../src/features/mini-games/useMiniGame';
+import { playInhaleSound, playExhaleSound, playAchievementSound } from '../../src/utils/sounds';
 
 const TOTAL_CYCLES = 4;
 const INHALE_MS = 4000;
@@ -79,6 +80,7 @@ export default function BreathingGame() {
     // — Inhale
     runOnJS(setPhase)('inhale');
     runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+    runOnJS(playInhaleSound)();
 
     scale.value = withSequence(
       withTiming(1.8, { duration: INHALE_MS, easing: Easing.inOut(Easing.ease) }),
@@ -101,6 +103,7 @@ export default function BreathingGame() {
     }, INHALE_MS);
     setTimeout(() => {
       runOnJS(setPhase)('exhale');
+      runOnJS(playExhaleSound)();
       colorProgress.value = withTiming(1, { duration: 300 });
     }, INHALE_MS + HOLD_MS);
     setTimeout(() => {
@@ -112,6 +115,7 @@ export default function BreathingGame() {
   async function handleComplete() {
     setPhase('done');
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    playAchievementSound();
     const earned = await completeGame();
     setGemsEarned(earned);
   }

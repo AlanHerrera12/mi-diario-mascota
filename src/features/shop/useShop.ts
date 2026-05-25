@@ -101,6 +101,15 @@ export function useBuyItem() {
         Alert.alert('Ya lo tenés', 'Este artículo ya está en tu vestidor.');
         return false;
       }
+      // Write gem transaction to DB so balance persists across sessions
+      if (price > 0) {
+        await supabase.from('gem_transactions').insert({
+          child_id: child.id,
+          amount: -price,
+          reason: 'shop_buy',
+          metadata: { item_id: item.id, demo: true },
+        });
+      }
       // Deduct gems locally
       usePetStore.getState().setGemBalance(gemBalance - price);
       usePetStore.getState().addDemoItem(item.id);

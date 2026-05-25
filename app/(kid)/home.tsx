@@ -152,8 +152,8 @@ export default function KidHomeScreen() {
         <View style={{ position: 'absolute', bottom: '30%', left: -30, width: 120, height: 120, borderRadius: 60, backgroundColor: '#7C3AED', opacity: 0.15 }} />
       </View>
 
-      {/* Header: gems + streak */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4 }}>
+      {/* Header: gems + streak — zIndex ensures dropdown floats above pet */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 12, paddingBottom: 4, zIndex: 100, position: 'relative' }}>
         <View style={{
           flexDirection: 'row', alignItems: 'center', gap: 6,
           backgroundColor: 'rgba(252,211,77,0.15)',

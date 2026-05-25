@@ -3,6 +3,7 @@ import { View, Text, FlatList, SafeAreaView, Pressable, ActivityIndicator } from
 import { router } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { usePetStore } from '../../src/stores/pet.store';
+import { playEquipSound } from '../../src/utils/sounds';
 import { PetDisplay } from '../../src/components/kid-ui/PetDisplay';
 import { useInventory, useToggleEquip, type RawInventoryItem } from '../../src/features/shop/useInventory';
 import { DEMO_ITEMS, type RawShopItem } from '../../src/features/shop/useShop';
@@ -212,6 +213,7 @@ export default function WardrobeScreen() {
                   {/* Equip button */}
                   <Pressable
                     onPress={() => {
+                      playEquipSound();
                       if (isDemo) {
                         toggleDemoEquip(item.shop_item_id);
                       } else {

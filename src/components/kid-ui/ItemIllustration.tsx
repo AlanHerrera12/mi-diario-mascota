@@ -302,6 +302,148 @@ function DiamondSVG({ size, color }: { size: number; color: string }) {
   );
 }
 
+// Armor / shield
+function ArmorSVG({ size, color }: { size: number; color: string }) {
+  const s = n(size);
+  const cx = size / 2;
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <Defs>
+        <LinearGradient id="armorGrad" x1="30%" y1="0%" x2="70%" y2="100%">
+          <Stop offset="0%" stopColor={color} stopOpacity="0.95" />
+          <Stop offset="100%" stopColor={color} stopOpacity="0.5" />
+        </LinearGradient>
+      </Defs>
+      {/* Shield shape */}
+      <Path
+        d={`M ${cx} ${s(0.08)} L ${s(0.88)} ${s(0.18)} L ${s(0.88)} ${s(0.55)} Q ${s(0.88)} ${s(0.82)} ${cx} ${s(0.94)} Q ${s(0.12)} ${s(0.82)} ${s(0.12)} ${s(0.55)} L ${s(0.12)} ${s(0.18)} Z`}
+        fill="url(#armorGrad)"
+      />
+      {/* Inner shield border */}
+      <Path
+        d={`M ${cx} ${s(0.16)} L ${s(0.80)} ${s(0.24)} L ${s(0.80)} ${s(0.54)} Q ${s(0.80)} ${s(0.76)} ${cx} ${s(0.86)} Q ${s(0.20)} ${s(0.76)} ${s(0.20)} ${s(0.54)} L ${s(0.20)} ${s(0.24)} Z`}
+        fill="none" stroke="white" strokeWidth={s(0.02)} opacity={0.3}
+      />
+      {/* Center cross / emblem */}
+      <Rect x={cx - s(0.04)} y={s(0.30)} width={s(0.08)} height={s(0.38)} rx={s(0.02)} fill="white" opacity={0.35} />
+      <Rect x={cx - s(0.16)} y={s(0.42)} width={s(0.32)} height={s(0.08)} rx={s(0.02)} fill="white" opacity={0.35} />
+      {/* Top highlight */}
+      <Ellipse cx={cx - s(0.05)} cy={s(0.28)} rx={s(0.12)} ry={s(0.06)} fill="white" opacity={0.2} transform={`rotate(-10 ${cx - s(0.05)} ${s(0.28)})`} />
+    </Svg>
+  );
+}
+
+// Legendary sparkle suit — glowing star arrangement
+function LegendarySVG({ size, color }: { size: number; color: string }) {
+  const s = n(size);
+  const cx = size / 2;
+  function starPath(x: number, y: number, r: number) {
+    const pts: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const a = (i * Math.PI) / 5 - Math.PI / 2;
+      const rad = i % 2 === 0 ? r : r * 0.42;
+      pts.push(`${x + Math.cos(a) * rad},${y + Math.sin(a) * rad}`);
+    }
+    return pts.join(' ');
+  }
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <Defs>
+        <RadialGradient id="legGrad" cx="50%" cy="50%" r="50%">
+          <Stop offset="0%" stopColor="#FCD34D" stopOpacity="1" />
+          <Stop offset="100%" stopColor={color} stopOpacity="0.6" />
+        </RadialGradient>
+      </Defs>
+      {/* Outer glow ring */}
+      <Circle cx={cx} cy={cx} r={s(0.42)} fill={color} opacity={0.15} />
+      <Circle cx={cx} cy={cx} r={s(0.36)} fill={color} opacity={0.12} />
+      {/* Big center star */}
+      <Polygon points={starPath(cx, cx, s(0.28))} fill="url(#legGrad)" />
+      {/* 4 corner mini stars */}
+      <Polygon points={starPath(s(0.22), s(0.22), s(0.10))} fill="#FCD34D" opacity={0.9} />
+      <Polygon points={starPath(s(0.78), s(0.22), s(0.10))} fill="#FCD34D" opacity={0.9} />
+      <Polygon points={starPath(s(0.22), s(0.78), s(0.10))} fill="#FCD34D" opacity={0.9} />
+      <Polygon points={starPath(s(0.78), s(0.78), s(0.10))} fill="#FCD34D" opacity={0.9} />
+      {/* Shine */}
+      <Ellipse cx={cx - s(0.06)} cy={s(0.36)} rx={s(0.06)} ry={s(0.04)} fill="white" opacity={0.4} transform={`rotate(-20 ${cx - s(0.06)} ${s(0.36)})`} />
+    </Svg>
+  );
+}
+
+// Hearts effect
+function HeartsSVG({ size, color }: { size: number; color: string }) {
+  const s = n(size);
+  function heart(cx: number, cy: number, r: number, opacity = 1) {
+    const x = cx; const y = cy;
+    return (
+      <Path
+        d={`M ${x} ${y + r * 0.4} Q ${x - r} ${y - r * 0.5} ${x - r * 1.2} ${y - r * 0.2} Q ${x - r * 1.6} ${y - r} ${x} ${y - r * 1.8} Q ${x + r * 1.6} ${y - r} ${x + r * 1.2} ${y - r * 0.2} Q ${x + r} ${y - r * 0.5} ${x} ${y + r * 0.4} Z`}
+        fill={color} opacity={opacity}
+      />
+    );
+  }
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {heart(size / 2, size * 0.52, size * 0.22, 0.95)}
+      {heart(size * 0.25, size * 0.72, size * 0.12, 0.75)}
+      {heart(size * 0.75, size * 0.72, size * 0.12, 0.75)}
+      {heart(size * 0.5, size * 0.18, size * 0.10, 0.6)}
+    </Svg>
+  );
+}
+
+// Fire / aura effect
+function FireSVG({ size, color }: { size: number; color: string }) {
+  const s = n(size);
+  const cx = size / 2;
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <Defs>
+        <LinearGradient id="fireGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+          <Stop offset="0%" stopColor="#FCD34D" stopOpacity="1" />
+          <Stop offset="60%" stopColor={color} stopOpacity="0.9" />
+          <Stop offset="100%" stopColor="#DC2626" stopOpacity="0.7" />
+        </LinearGradient>
+      </Defs>
+      {/* Outer flame */}
+      <Path
+        d={`M ${cx} ${s(0.05)} Q ${s(0.80)} ${s(0.20)} ${s(0.82)} ${s(0.55)} Q ${s(0.88)} ${s(0.85)} ${cx} ${s(0.95)} Q ${s(0.12)} ${s(0.85)} ${s(0.18)} ${s(0.55)} Q ${s(0.20)} ${s(0.20)} ${cx} ${s(0.05)} Z`}
+        fill="url(#fireGrad)" opacity={0.9}
+      />
+      {/* Inner bright flame */}
+      <Path
+        d={`M ${cx} ${s(0.18)} Q ${s(0.72)} ${s(0.32)} ${s(0.72)} ${s(0.60)} Q ${s(0.72)} ${s(0.82)} ${cx} ${s(0.88)} Q ${s(0.28)} ${s(0.82)} ${s(0.28)} ${s(0.60)} Q ${s(0.28)} ${s(0.32)} ${cx} ${s(0.18)} Z`}
+        fill="#FCD34D" opacity={0.6}
+      />
+      {/* Core */}
+      <Ellipse cx={cx} cy={s(0.68)} rx={s(0.14)} ry={s(0.16)} fill="white" opacity={0.3} />
+    </Svg>
+  );
+}
+
+// Spiral / vortex animation
+function SwirlSVG({ size, color }: { size: number; color: string }) {
+  const s = n(size);
+  const cx = size / 2;
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <Defs>
+        <LinearGradient id="swirlGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <Stop offset="0%" stopColor={color} stopOpacity="1" />
+          <Stop offset="100%" stopColor={color} stopOpacity="0.3" />
+        </LinearGradient>
+      </Defs>
+      {/* Concentric arcs forming a swirl */}
+      <Path d={`M ${s(0.50)} ${s(0.10)} A ${s(0.40)} ${s(0.40)} 0 0 1 ${s(0.90)} ${s(0.50)} A ${s(0.30)} ${s(0.30)} 0 0 0 ${s(0.60)} ${s(0.20)}`}
+        stroke={color} strokeWidth={s(0.055)} fill="none" strokeLinecap="round" opacity={0.9} />
+      <Path d={`M ${s(0.50)} ${s(0.10)} A ${s(0.40)} ${s(0.40)} 0 1 1 ${s(0.10)} ${s(0.55)} A ${s(0.28)} ${s(0.28)} 0 0 0 ${s(0.50)} ${s(0.28)}`}
+        stroke={color} strokeWidth={s(0.045)} fill="none" strokeLinecap="round" opacity={0.7} />
+      <Circle cx={cx} cy={cx} r={s(0.12)} fill={color} opacity={0.8} />
+      <Circle cx={cx} cy={cx} r={s(0.06)} fill="white" opacity={0.5} />
+    </Svg>
+  );
+}
+
 export function ItemIllustration({ category, name, rarity, speciesKey, size = 64 }: Props) {
   const color = RARITY_GLOW[rarity] ?? '#9CA3AF';
   const lowerName = name.toLowerCase();
@@ -316,32 +458,41 @@ export function ItemIllustration({ category, name, rarity, speciesKey, size = 64
     return <PetDogSVG size={size} mood="happy" />;
   }
 
-  // Outfit
+  // Outfit — specific matches before generic fallback
   if (category === 'outfit') {
-    if (lowerName.includes('sombrero') || lowerName.includes('hat'))       return <HatSVG size={size} color={color} />;
-    if (lowerName.includes('capa') || lowerName.includes('superhéroe'))    return <CapeSVG size={size} color={color} />;
-    if (lowerName.includes('corona'))                                       return <CrownSVG size={size} color={color} />;
-    if (lowerName.includes('astronauta') || lowerName.includes('armadura') || lowerName.includes('traje')) return <AstronautSVG size={size} color={color} />;
+    if (lowerName.includes('sombrero') || lowerName.includes('hat'))        return <HatSVG size={size} color={color} />;
+    if (lowerName.includes('capa') || lowerName.includes('superhéroe'))     return <CapeSVG size={size} color={color} />;
+    if (lowerName.includes('corona'))                                        return <CrownSVG size={size} color={color} />;
+    if (lowerName.includes('astronauta'))                                    return <AstronautSVG size={size} color={color} />;
+    if (lowerName.includes('armadura'))                                      return <ArmorSVG size={size} color={color} />;
+    if (lowerName.includes('legendario') || lowerName.includes('legendary'))return <LegendarySVG size={size} color={color} />;
+    if (lowerName.includes('traje'))                                         return <AstronautSVG size={size} color={color} />;
     return <HatSVG size={size} color={color} />;
   }
 
   // Accessory
   if (category === 'accessory') {
-    if (lowerName.includes('collar'))                                       return <FlowerCollarSVG size={size} color={color} />;
-    if (lowerName.includes('gafas'))                                        return <SunglassesSVG size={size} color={color} />;
-    if (lowerName.includes('alas'))                                         return <WingsSVG size={size} color={color} />;
+    if (lowerName.includes('collar'))                                        return <FlowerCollarSVG size={size} color={color} />;
+    if (lowerName.includes('gafas'))                                         return <SunglassesSVG size={size} color={color} />;
+    if (lowerName.includes('alas'))                                          return <WingsSVG size={size} color={color} />;
+    if (lowerName.includes('halo') || lowerName.includes('arco'))            return <StarEffectSVG size={size} color={color} />;
     return <DiamondSVG size={size} color={color} />;
   }
 
   // Effect
   if (category === 'effect') {
-    if (lowerName.includes('estrella') || lowerName.includes('destello'))  return <StarEffectSVG size={size} color={color} />;
+    if (lowerName.includes('estrella') || lowerName.includes('destello'))   return <StarEffectSVG size={size} color={color} />;
+    if (lowerName.includes('coraz'))                                          return <HeartsSVG size={size} color={color} />;
+    if (lowerName.includes('fuego') || lowerName.includes('llama'))          return <FireSVG size={size} color={color} />;
+    if (lowerName.includes('legendar') || lowerName.includes('aura'))        return <LegendarySVG size={size} color={color} />;
     return <DiamondSVG size={size} color={color} />;
   }
 
   // Animation
   if (category === 'animation') {
-    if (lowerName.includes('bail') || lowerName.includes('vuelta'))        return <DanceFigureSVG size={size} color={color} />;
+    if (lowerName.includes('bail'))                                           return <DanceFigureSVG size={size} color={color} />;
+    if (lowerName.includes('vuelta') || lowerName.includes('giro'))          return <SwirlSVG size={size} color={color} />;
+    if (lowerName.includes('épico') || lowerName.includes('epico'))          return <DanceFigureSVG size={size} color={color} />;
     return <DanceFigureSVG size={size} color={color} />;
   }
 
