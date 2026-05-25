@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { FloatingOrbs } from '../../src/components/shared/FloatingOrbs';
+import { StarField } from '../../src/components/shared/StarField';
 import { useParentSignup } from '../../src/features/auth/useParentAuth';
 
 const COUNTRY_OPTIONS = [
@@ -27,7 +27,7 @@ function Field({
 }) {
   return (
     <View style={{ marginBottom: 4 }}>
-      <Text style={{ fontSize: 13, fontWeight: '700', color: '#4C1D95', marginBottom: 6 }}>
+      <Text style={{ fontSize: 13, fontWeight: '700', color: '#A5B4FC', marginBottom: 6 }}>
         {label}
       </Text>
       <TextInput
@@ -35,22 +35,22 @@ function Field({
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
         placeholder={placeholder}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor="rgba(255,255,255,0.3)"
         keyboardType={keyboardType ?? 'default'}
         autoCapitalize={autoCapitalize ?? 'none'}
         style={{
           borderWidth: 1.5,
-          borderColor: error ? '#F87171' : '#EDE9FE',
+          borderColor: error ? '#F87171' : 'rgba(129,140,248,0.35)',
           borderRadius: 16,
           paddingHorizontal: 16,
           paddingVertical: 14,
           fontSize: 16,
-          color: '#1F2937',
-          backgroundColor: error ? '#FEF2F2' : '#FAFAFA',
+          color: 'white',
+          backgroundColor: error ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.07)',
           marginBottom: error ? 4 : 14,
         }}
       />
-      {error ? <Text style={{ color: '#EF4444', fontSize: 12, marginBottom: 10 }}>{error}</Text> : null}
+      {error ? <Text style={{ color: '#F87171', fontSize: 12, marginBottom: 10 }}>{error}</Text> : null}
     </View>
   );
 }
@@ -87,43 +87,47 @@ export default function ParentSignupScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: '#7C3AED' }}
+      style={{ flex: 1, backgroundColor: '#0D0626' }}
     >
-      <FloatingOrbs />
+      <StarField />
 
-      {/* Top — purple hero */}
+      {/* Top hero */}
       <Animated.View
         entering={FadeInDown.duration(600)}
-        style={{ paddingTop: 56, paddingBottom: 28, paddingHorizontal: 24, zIndex: 1 }}
+        style={{ paddingTop: 56, paddingBottom: 24, paddingHorizontal: 24, zIndex: 1 }}
       >
         <Pressable onPress={() => router.back()} style={{ marginBottom: 16 }}>
-          <Text style={{ color: '#EDE9FE', fontSize: 16 }}>← Volver</Text>
+          <Text style={{ color: '#A5B4FC', fontSize: 16 }}>← Volver</Text>
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <View style={{
             width: 56, height: 56, borderRadius: 18,
-            backgroundColor: '#C4B5FD', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: 'rgba(167,139,250,0.2)',
+            alignItems: 'center', justifyContent: 'center',
+            borderWidth: 1, borderColor: 'rgba(129,140,248,0.3)',
           }}>
             <Text style={{ fontSize: 28 }}>🔐</Text>
           </View>
           <View>
             <Text style={{ color: 'white', fontSize: 24, fontWeight: '800' }}>Crear cuenta</Text>
-            <Text style={{ color: '#C4B5FD', fontSize: 13, marginTop: 2 }}>
+            <Text style={{ color: '#818CF8', fontSize: 13, marginTop: 2 }}>
               Esta es la cuenta del adulto responsable
             </Text>
           </View>
         </View>
       </Animated.View>
 
-      {/* Bottom — white card */}
+      {/* Glass card */}
       <Animated.View
         entering={FadeInUp.delay(200).duration(600)}
         style={{
           flex: 1,
-          backgroundColor: 'white',
+          backgroundColor: 'rgba(255,255,255,0.05)',
           borderTopLeftRadius: 36,
           borderTopRightRadius: 36,
+          borderWidth: 1,
+          borderColor: 'rgba(129,140,248,0.2)',
           paddingHorizontal: 28,
           paddingTop: 28,
           zIndex: 1,
@@ -164,7 +168,7 @@ export default function ParentSignupScreen() {
           />
 
           {/* País */}
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#4C1D95', marginBottom: 10 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#A5B4FC', marginBottom: 10 }}>
             País
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
@@ -177,14 +181,14 @@ export default function ParentSignupScreen() {
                   paddingVertical: 9,
                   borderRadius: 14,
                   borderWidth: 1.5,
-                  borderColor: countryCode === c.code ? '#7C3AED' : '#EDE9FE',
-                  backgroundColor: countryCode === c.code ? '#7C3AED' : '#FAFAFA',
+                  borderColor: countryCode === c.code ? '#7C3AED' : 'rgba(129,140,248,0.25)',
+                  backgroundColor: countryCode === c.code ? '#7C3AED' : 'rgba(129,140,248,0.1)',
                 }}
               >
                 <Text style={{
                   fontSize: 13,
                   fontWeight: '600',
-                  color: countryCode === c.code ? 'white' : '#6B7280',
+                  color: countryCode === c.code ? 'white' : '#818CF8',
                 }}>
                   {c.label}
                 </Text>
@@ -201,7 +205,7 @@ export default function ParentSignupScreen() {
               paddingVertical: 18,
               alignItems: 'center',
               shadowColor: '#7C3AED',
-              shadowOpacity: 0.4,
+              shadowOpacity: 0.5,
               shadowRadius: 12,
               elevation: 6,
               opacity: loading ? 0.8 : 1,
@@ -213,9 +217,9 @@ export default function ParentSignupScreen() {
           </Pressable>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 32 }}>
-            <Text style={{ color: '#9CA3AF', fontSize: 14 }}>¿Ya tenés cuenta? </Text>
+            <Text style={{ color: '#818CF8', fontSize: 14 }}>¿Ya tenés cuenta? </Text>
             <Pressable onPress={() => router.push('/(auth)/login')}>
-              <Text style={{ color: '#7C3AED', fontSize: 14, fontWeight: '700' }}>Iniciá sesión</Text>
+              <Text style={{ color: '#A78BFA', fontSize: 14, fontWeight: '700' }}>Iniciá sesión</Text>
             </Pressable>
           </View>
         </ScrollView>

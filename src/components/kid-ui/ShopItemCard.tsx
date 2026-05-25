@@ -1,5 +1,10 @@
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import Animated, {
+  useSharedValue, useAnimatedStyle, withTiming, withRepeat, withSequence, interpolate,
+} from 'react-native-reanimated';
 import type { RawShopItem } from '../../features/shop/useShop';
+import { ItemIllustration } from './ItemIllustration';
 
 const RARITY_CONFIG = {
   common: {
@@ -48,41 +53,123 @@ const RARITY_CONFIG = {
   },
 };
 
+// ✦ corner particle for legendary cards
+function SparkleCorner({ top, left, right, bottom, delay }: {
+  top?: number | string; left?: number | string;
+  right?: number | string; bottom?: number | string;
+  delay: number;
+}) {
+  const opacity = useSharedValue(0.2);
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 600 }),
+        withTiming(0.2, { duration: 600 }),
+      ),
+      -1, true,
+    );
+  }, []);
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  return (
+    <Animated.Text style={[style, {
+      position: 'absolute', top, left, right, bottom,
+      fontSize: 9, color: '#FCD34D',
+    }]}>✦</Animated.Text>
+  );
+}
+
 interface Props {
   item: RawShopItem;
   owned: boolean;
   equipped?: boolean;
   onBuy: () => Promise<void>;
   loading?: boolean;
+  index?: number;
 }
 
-export function ShopItemCard({ item, owned, equipped, onBuy, loading }: Props) {
+export function ShopItemCard({ item, owned, equipped, onBuy, loading, index = 0 }: Props) {
   const r = RARITY_CONFIG[item.rarity] ?? RARITY_CONFIG.common;
-  const isEmoji = !item.preview_url.startsWith('http');
+  const [showBack, setShowBack] = useState(false);
+  const flipProgress = useSharedValue(0);
+  const epicBorder = useSharedValue(1);
+
+  // Auto flip-and-reveal on mount
+  useEffect(() => {
+    const t = setTimeout(() => {
+      // Flip to 90°
+      flipProgress.value = withTiming(0.5, { duration: 350 }, () => {
+        // swap content at mid-flip
+      });
+      const swap1 = setTimeout(() => setShowBack(true), 300);
+      // Flip back to 0°
+      const back = setTimeout(() => {
+        flipProgress.value = withTiming(0, { duration: 350 });
+        const swap2 = setTimeout(() => setShowBack(false), 280);
+        return () => clearTimeout(swap2);
+      }, 1100);
+      return () => { clearTimeout(swap1); clearTimeout(back); };
+    }, 700 + index * 55);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Epic border glow pulse
+  useEffect(() => {
+    if (item.rarity === 'epic') {
+      epicBorder.value = withRepeat(
+        withSequence(
+          withTiming(2, { duration: 1200 }),
+          withTiming(1, { duration: 1200 }),
+        ),
+        -1, true,
+      );
+    }
+  }, []);
+
+  const flipStyle = useAnimatedStyle(() => ({
+    transform: [
+      { perspective: 800 },
+      { rotateY: `${interpolate(flipProgress.value, [0, 0.5, 1], [0, 90, 0])}deg` },
+    ],
+  }));
+
+  const epicBorderStyle = useAnimatedStyle(() => ({
+    borderWidth: item.rarity === 'epic' ? epicBorder.value : (equipped ? 2 : 1),
+  }));
 
   return (
-    <View style={{
+    <Animated.View style={[{
       backgroundColor: r.bgColor,
       borderRadius: 20,
-      borderWidth: equipped ? 2 : 1,
       borderColor: equipped ? r.glowColor : r.borderColor,
       padding: 12,
       shadowColor: r.glowColor,
       shadowOpacity: equipped ? 0.5 : 0.2,
       shadowRadius: equipped ? 12 : 6,
       elevation: equipped ? 8 : 3,
-    }}>
+      overflow: 'hidden',
+    }, epicBorderStyle]}>
+
       {/* Glow spot for legendary/epic */}
       {(item.rarity === 'legendary' || item.rarity === 'epic') && (
         <View style={{
           position: 'absolute', top: -10, right: -10,
           width: 60, height: 60, borderRadius: 30,
-          backgroundColor: r.glowColor, opacity: 0.15,
+          backgroundColor: r.glowColor, opacity: 0.18,
         }} />
       )}
 
-      {/* Preview */}
-      <View style={{
+      {/* Legendary corner sparkles */}
+      {item.rarity === 'legendary' && (
+        <>
+          <SparkleCorner top={6}  left={6}  delay={0}   />
+          <SparkleCorner top={6}  right={6} delay={150} />
+          <SparkleCorner bottom={6} left={6}  delay={300} />
+          <SparkleCorner bottom={6} right={6} delay={450} />
+        </>
+      )}
+
+      {/* Flip-animated preview area */}
+      <Animated.View style={[{
         backgroundColor: r.iconBg,
         borderRadius: 14,
         height: 80,
@@ -92,16 +179,23 @@ export function ShopItemCard({ item, owned, equipped, onBuy, loading }: Props) {
         borderWidth: 1,
         borderColor: r.borderColor,
         overflow: 'hidden',
-      }}>
-        {isEmoji ? (
-          <Text style={{ fontSize: 38 }}>{item.preview_url}</Text>
+      }, flipStyle]}>
+        {showBack ? (
+          // Back: description text
+          <View style={{ paddingHorizontal: 6, alignItems: 'center' }}>
+            <Text style={{ color: r.tagColor, fontSize: 9, fontWeight: '700', textAlign: 'center', lineHeight: 13 }}>
+              {item.description}
+            </Text>
+          </View>
         ) : (
-          <Text style={{ fontSize: 38 }}>🎁</Text>
-        )}
-
-        {/* Rarity stars for legendary */}
-        {item.rarity === 'legendary' && (
-          <Text style={{ position: 'absolute', top: 4, left: 6, fontSize: 10, opacity: 0.8 }}>✦</Text>
+          // Front: illustration
+          <ItemIllustration
+            category={item.category}
+            name={item.name}
+            rarity={item.rarity}
+            speciesKey={item.species_key}
+            size={64}
+          />
         )}
 
         {equipped && (
@@ -114,7 +208,7 @@ export function ShopItemCard({ item, owned, equipped, onBuy, loading }: Props) {
             <Text style={{ color: 'white', fontSize: 10, fontWeight: '900' }}>✓</Text>
           </View>
         )}
-      </View>
+      </Animated.View>
 
       {/* Name */}
       <Text
@@ -183,6 +277,6 @@ export function ShopItemCard({ item, owned, equipped, onBuy, loading }: Props) {
           )}
         </Pressable>
       )}
-    </View>
+    </Animated.View>
   );
 }

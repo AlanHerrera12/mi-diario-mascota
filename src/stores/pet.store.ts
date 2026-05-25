@@ -7,6 +7,7 @@ interface PetState {
   currentStreak: number;
   lastTalkDate: string | null;
   ownedDemoItems: string[];
+  equippedDemoItems: string[];
 
   setPet: (pet: Pet | null) => void;
   setGemBalance: (balance: number) => void;
@@ -15,6 +16,7 @@ interface PetState {
   setLastTalkDate: (date: string | null) => void;
   setEquippedItems: (itemIds: string[]) => void;
   addDemoItem: (id: string) => void;
+  toggleDemoEquip: (shopItemId: string) => void;
 }
 
 export const usePetStore = create<PetState>(set => ({
@@ -23,6 +25,7 @@ export const usePetStore = create<PetState>(set => ({
   currentStreak: 0,
   lastTalkDate: null,
   ownedDemoItems: [],
+  equippedDemoItems: [],
 
   setPet: pet => set({ pet }),
   setGemBalance: balance => set({ gemBalance: balance }),
@@ -38,5 +41,10 @@ export const usePetStore = create<PetState>(set => ({
     ownedDemoItems: state.ownedDemoItems.includes(id)
       ? state.ownedDemoItems
       : [...state.ownedDemoItems, id],
+  })),
+  toggleDemoEquip: shopItemId => set(state => ({
+    equippedDemoItems: state.equippedDemoItems.includes(shopItemId)
+      ? state.equippedDemoItems.filter(id => id !== shopItemId)
+      : [...state.equippedDemoItems, shopItemId],
   })),
 }));

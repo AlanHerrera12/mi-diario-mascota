@@ -6,7 +6,7 @@ import {
 import { router } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
-import { FloatingOrbs } from '../../src/components/shared/FloatingOrbs';
+import { StarField } from '../../src/components/shared/StarField';
 import { useParentLogin } from '../../src/features/auth/useParentAuth';
 
 export default function LoginScreen() {
@@ -35,13 +35,13 @@ export default function LoginScreen() {
     setTransitioning(true);
   }
 
-  // Transitioning — purple loading screen consistent with app theme
+  // Transitioning — dark loading screen
   if (transitioning) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#7C3AED', alignItems: 'center', justifyContent: 'center' }}>
-        <FloatingOrbs />
+      <View style={{ flex: 1, backgroundColor: '#0D0626', alignItems: 'center', justifyContent: 'center' }}>
+        <StarField />
         <PetDogSVG size={120} mood="happy" />
-        <ActivityIndicator size="large" color="white" style={{ marginTop: 24 }} />
+        <ActivityIndicator size="large" color="#A78BFA" style={{ marginTop: 24 }} />
         <Text style={{ color: 'white', marginTop: 16, fontSize: 18, fontWeight: '800' }}>
           Entrando...
         </Text>
@@ -52,20 +52,20 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: '#7C3AED' }}
+      style={{ flex: 1, backgroundColor: '#0D0626' }}
     >
-      <FloatingOrbs />
+      <StarField />
 
-      {/* Top — purple hero */}
+      {/* Top hero */}
       <Animated.View
         entering={FadeInDown.duration(600)}
-        style={{ alignItems: 'center', paddingTop: 60, paddingBottom: 32, zIndex: 1 }}
+        style={{ alignItems: 'center', paddingTop: 60, paddingBottom: 28, zIndex: 1 }}
       >
         <Pressable
           onPress={() => router.back()}
           style={{ position: 'absolute', top: 60, left: 24 }}
         >
-          <Text style={{ color: '#EDE9FE', fontSize: 16 }}>← Volver</Text>
+          <Text style={{ color: '#A5B4FC', fontSize: 16 }}>← Volver</Text>
         </Pressable>
 
         <PetDogSVG size={110} mood="happy" />
@@ -73,19 +73,21 @@ export default function LoginScreen() {
         <Text style={{ color: 'white', fontSize: 26, fontWeight: '800', marginTop: 8 }}>
           ¡Hola de vuelta!
         </Text>
-        <Text style={{ color: '#C4B5FD', fontSize: 14, marginTop: 4 }}>
+        <Text style={{ color: '#818CF8', fontSize: 14, marginTop: 4 }}>
           Iniciá sesión con tu cuenta de adulto
         </Text>
       </Animated.View>
 
-      {/* Bottom — white card */}
+      {/* Glass card */}
       <Animated.View
         entering={FadeInUp.delay(200).duration(600)}
         style={{
           flex: 1,
-          backgroundColor: 'white',
+          backgroundColor: 'rgba(255,255,255,0.05)',
           borderTopLeftRadius: 36,
           borderTopRightRadius: 36,
+          borderWidth: 1,
+          borderColor: 'rgba(129,140,248,0.2)',
           paddingHorizontal: 28,
           paddingTop: 32,
           zIndex: 1,
@@ -93,7 +95,7 @@ export default function LoginScreen() {
       >
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {/* Email */}
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#4C1D95', marginBottom: 6 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#A5B4FC', marginBottom: 6 }}>
             Email
           </Text>
           <TextInput
@@ -102,25 +104,25 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             placeholder="tu@email.com"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="rgba(255,255,255,0.3)"
             style={{
               borderWidth: 1.5,
-              borderColor: errors.email ? '#F87171' : '#EDE9FE',
+              borderColor: errors.email ? '#F87171' : 'rgba(129,140,248,0.35)',
               borderRadius: 16,
               paddingHorizontal: 16,
               paddingVertical: 14,
               fontSize: 16,
-              color: '#1F2937',
-              backgroundColor: errors.email ? '#FEF2F2' : '#FAFAFA',
+              color: 'white',
+              backgroundColor: errors.email ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.07)',
               marginBottom: errors.email ? 4 : 16,
             }}
           />
           {errors.email ? (
-            <Text style={{ color: '#EF4444', fontSize: 12, marginBottom: 12 }}>{errors.email}</Text>
+            <Text style={{ color: '#F87171', fontSize: 12, marginBottom: 12 }}>{errors.email}</Text>
           ) : null}
 
           {/* Contraseña */}
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#4C1D95', marginBottom: 6 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#A5B4FC', marginBottom: 6 }}>
             Contraseña
           </Text>
           <TextInput
@@ -128,35 +130,36 @@ export default function LoginScreen() {
             onChangeText={setPassword}
             secureTextEntry
             placeholder="Tu contraseña"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="rgba(255,255,255,0.3)"
             style={{
               borderWidth: 1.5,
-              borderColor: errors.password ? '#F87171' : '#EDE9FE',
+              borderColor: errors.password ? '#F87171' : 'rgba(129,140,248,0.35)',
               borderRadius: 16,
               paddingHorizontal: 16,
               paddingVertical: 14,
               fontSize: 16,
-              color: '#1F2937',
-              backgroundColor: errors.password ? '#FEF2F2' : '#FAFAFA',
+              color: 'white',
+              backgroundColor: errors.password ? 'rgba(248,113,113,0.1)' : 'rgba(255,255,255,0.07)',
               marginBottom: errors.password ? 4 : 8,
             }}
           />
           {errors.password ? (
-            <Text style={{ color: '#EF4444', fontSize: 12, marginBottom: 4 }}>{errors.password}</Text>
+            <Text style={{ color: '#F87171', fontSize: 12, marginBottom: 4 }}>{errors.password}</Text>
           ) : null}
 
           <Pressable style={{ alignSelf: 'flex-end', marginBottom: 20 }}>
-            <Text style={{ color: '#7C3AED', fontSize: 13, fontWeight: '600' }}>
+            <Text style={{ color: '#818CF8', fontSize: 13, fontWeight: '600' }}>
               ¿Olvidaste tu contraseña?
             </Text>
           </Pressable>
 
           {errors.general ? (
             <View style={{
-              backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FECACA',
+              backgroundColor: 'rgba(248,113,113,0.1)',
+              borderWidth: 1, borderColor: 'rgba(248,113,113,0.3)',
               borderRadius: 14, padding: 14, marginBottom: 16,
             }}>
-              <Text style={{ color: '#DC2626', fontSize: 13, textAlign: 'center' }}>
+              <Text style={{ color: '#F87171', fontSize: 13, textAlign: 'center' }}>
                 {errors.general}
               </Text>
             </View>
@@ -172,7 +175,7 @@ export default function LoginScreen() {
               paddingVertical: 18,
               alignItems: 'center',
               shadowColor: '#7C3AED',
-              shadowOpacity: 0.4,
+              shadowOpacity: 0.5,
               shadowRadius: 12,
               elevation: 6,
               opacity: loading ? 0.8 : 1,
@@ -185,9 +188,9 @@ export default function LoginScreen() {
           </Pressable>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 32 }}>
-            <Text style={{ color: '#9CA3AF', fontSize: 14 }}>¿No tenés cuenta? </Text>
+            <Text style={{ color: '#818CF8', fontSize: 14 }}>¿No tenés cuenta? </Text>
             <Pressable onPress={() => router.push('/(auth)/parent-signup')}>
-              <Text style={{ color: '#7C3AED', fontSize: 14, fontWeight: '700' }}>Registrate</Text>
+              <Text style={{ color: '#A78BFA', fontSize: 14, fontWeight: '700' }}>Registrate</Text>
             </Pressable>
           </View>
         </ScrollView>

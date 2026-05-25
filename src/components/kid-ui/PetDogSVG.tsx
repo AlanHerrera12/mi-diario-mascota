@@ -50,6 +50,10 @@ export function PetDogSVG({ size = 200, mood = 'idle', baseColor = '#C4B5FD' }: 
           <Stop offset="0%" stopColor="#FEE2E2" stopOpacity="0.9" />
           <Stop offset="100%" stopColor={cheekColor} stopOpacity="0.5" />
         </RadialGradient>
+        <RadialGradient id="rimGrad" cx="85%" cy="25%" r="50%">
+          <Stop offset="0%" stopColor="white" stopOpacity="0.35" />
+          <Stop offset="100%" stopColor="white" stopOpacity="0" />
+        </RadialGradient>
       </Defs>
 
       {/* Shadow under body */}
@@ -218,15 +222,36 @@ export function PetDogSVG({ size = 200, mood = 'idle', baseColor = '#C4B5FD' }: 
         <Ellipse cx={cx} cy={s * 0.515} rx={s * 0.035} ry={s * 0.04} fill="#F87171" />
       )}
 
-      {/* Head highlight (plush sheen) */}
+      {/* Head highlight (plush sheen) — raised opacity */}
       <Ellipse
         cx={cx - s * 0.08}
         cy={s * 0.24}
         rx={s * 0.07}
         ry={s * 0.045}
         fill="white"
-        opacity={0.25}
+        opacity={0.45}
         transform={`rotate(-20 ${cx - s * 0.08} ${s * 0.24})`}
+      />
+
+      {/* Rim light — top-right edge of head */}
+      <Ellipse
+        cx={cx + s * 0.16}
+        cy={s * 0.22}
+        rx={s * 0.08}
+        ry={s * 0.05}
+        fill="url(#rimGrad)"
+        transform={`rotate(25 ${cx + s * 0.16} ${s * 0.22})`}
+      />
+
+      {/* Depth contour shadow — bottom-left */}
+      <Ellipse
+        cx={cx - s * 0.18}
+        cy={s * 0.46}
+        rx={s * 0.08}
+        ry={s * 0.10}
+        fill={bodyShade}
+        opacity={0.15}
+        transform={`rotate(20 ${cx - s * 0.18} ${s * 0.46})`}
       />
     </Svg>
   );

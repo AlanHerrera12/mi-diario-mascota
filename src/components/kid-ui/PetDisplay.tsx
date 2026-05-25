@@ -9,10 +9,13 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import type { Pet } from '../../types';
-import { PetDogSVG } from './PetDogSVG';
-
-// TODO (assets): reemplazar con <RiveAnimation> cuando tengamos los .riv
-// Los nombres de state machine deben ser: idle, listening, happy, sleepy, missing_you
+import { PetDogSVG }    from './PetDogSVG';
+import { PetCatSVG }    from './PetCatSVG';
+import { PetBearSVG }   from './PetBearSVG';
+import { PetRabbitSVG } from './PetRabbitSVG';
+import { PetDragonSVG } from './PetDragonSVG';
+import { usePetStore } from '../../stores/pet.store';
+import { DEMO_ITEMS } from '../../features/shop/useShop';
 
 type PetMood = 'idle' | 'listening' | 'happy' | 'sleepy' | 'missing_you';
 
@@ -29,6 +32,15 @@ const MOOD_SUFFIX: Record<PetMood, string> = {
   missing_you: '🥺',
 };
 
+// Overlay positions per item category — relative to the pet container
+const ITEM_POSITIONS: Record<string, { top: string; left: string }> = {
+  outfit:    { top: '42%', left: '38%' },
+  accessory: { top: '5%',  left: '38%' },
+  effect:    { top: '65%', left: '10%' },
+  animation: { top: '70%', left: '55%' },
+  species:   { top: '20%', left: '60%' },
+};
+
 interface Props {
   pet: Pet;
   mood?: PetMood;
@@ -38,10 +50,10 @@ interface Props {
 export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
+  const equippedDemoItems = usePetStore(s => s.equippedDemoItems);
 
   useEffect(() => {
     if (mood === 'listening') {
-      // Leve oscilación lateral cuando escucha
       scale.value = withRepeat(
         withSequence(
           withTiming(1.05, { duration: 600, easing: Easing.inOut(Easing.sin) }),
@@ -51,7 +63,6 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
         true,
       );
     } else if (mood === 'happy') {
-      // Salto de celebración
       translateY.value = withRepeat(
         withSequence(
           withTiming(-16, { duration: 250, easing: Easing.out(Easing.quad) }),
@@ -62,7 +73,6 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
       );
       scale.value = withTiming(1, { duration: 100 });
     } else {
-      // Respiración suave en idle / sleepy / missing_you
       scale.value = withRepeat(
         withSequence(
           withTiming(1.04, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
@@ -82,8 +92,12 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
   const emoji = SPECIES_EMOJI[pet.species] ?? '🐾';
   const suffix = MOOD_SUFFIX[mood];
 
+  // Combine real equipped items from pet customization + locally equipped demo items
+  const realEquipped: string[] = pet.customization.equippedItems ?? [];
+  const allEquipped = Array.from(new Set([...realEquipped, ...equippedDemoItems]));
+
   return (
-    <View className="items-center justify-center">
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <Animated.View
         style={[
           animatedStyle,
@@ -97,13 +111,21 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
       >
         {pet.species === 'dog' ? (
           <PetDogSVG size={size} mood={mood} baseColor={pet.customization.baseColor} />
+        ) : pet.species === 'cat' ? (
+          <PetCatSVG size={size} mood={mood} baseColor={pet.customization.baseColor} />
+        ) : pet.species === 'bear' ? (
+          <PetBearSVG size={size} mood={mood} baseColor={pet.customization.baseColor} />
+        ) : pet.species === 'rabbit' ? (
+          <PetRabbitSVG size={size} mood={mood} baseColor={pet.customization.baseColor} />
+        ) : pet.species === 'dragon' ? (
+          <PetDragonSVG size={size} mood={mood} baseColor={pet.customization.baseColor} />
         ) : (
           <View
             style={{
               width: size,
               height: size,
               borderRadius: size / 2,
-              backgroundColor: pet.customization.baseColor + '33',
+              backgroundColor: (pet.customization.baseColor ?? '#A78BFA') + '33',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -111,6 +133,29 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
             <Text style={{ fontSize: size * 0.5 }}>{emoji}</Text>
           </View>
         )}
+
+        {/* Equipped item overlays */}
+        {allEquipped.map(shopItemId => {
+          const demoItem = DEMO_ITEMS.find(d => d.id === shopItemId);
+          if (!demoItem) return null;
+          const pos = ITEM_POSITIONS[demoItem.category] ?? { top: '40%', left: '38%' };
+          const isEmoji = !demoItem.preview_url.startsWith('http');
+          if (!isEmoji) return null;
+          return (
+            <Text
+              key={shopItemId}
+              style={{
+                position: 'absolute',
+                fontSize: size * 0.18,
+                top: pos.top,
+                left: pos.left,
+              }}
+            >
+              {demoItem.preview_url}
+            </Text>
+          );
+        })}
+
         {suffix ? (
           <Text
             style={{ fontSize: size * 0.22, position: 'absolute', bottom: size * 0.08, right: size * 0.08 }}
@@ -120,7 +165,9 @@ export function PetDisplay({ pet, mood = 'idle', size = 180 }: Props) {
         ) : null}
       </Animated.View>
 
-      <Text className="mt-3 text-lg font-bold text-gray-700">{pet.name}</Text>
+      <Text style={{ marginTop: 12, fontSize: 16, fontWeight: '700', color: '#A5B4FC' }}>
+        {pet.name}
+      </Text>
     </View>
   );
 }

@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { usePetStore } from '../../src/stores/pet.store';
 import { PetDisplay } from '../../src/components/kid-ui/PetDisplay';
-import { useInventory, type RawInventoryItem } from '../../src/features/shop/useInventory';
+import { useInventory, useToggleEquip, type RawInventoryItem } from '../../src/features/shop/useInventory';
 import { DEMO_ITEMS, type RawShopItem } from '../../src/features/shop/useShop';
 import type { ItemCategory } from '../../src/types';
 
@@ -34,7 +34,10 @@ function makeDemoInventoryItem(shopItem: RawShopItem): RawInventoryItem {
 export default function WardrobeScreen() {
   const pet = usePetStore(s => s.pet);
   const ownedDemoItems = usePetStore(s => s.ownedDemoItems);
+  const equippedDemoItems = usePetStore(s => s.equippedDemoItems);
+  const toggleDemoEquip = usePetStore(s => s.toggleDemoEquip);
   const { data: realInventory = [], isLoading } = useInventory();
+  const { toggleEquip } = useToggleEquip();
 
   // Merge real DB inventory with locally-purchased demo items
   const demoInventory: RawInventoryItem[] = DEMO_ITEMS
@@ -42,7 +45,12 @@ export default function WardrobeScreen() {
     .map(makeDemoInventoryItem);
 
   const inventory = [...realInventory, ...demoInventory];
-  const equippedItems = realInventory.filter(i => i.equipped);
+
+  // For pet preview: real equipped + demo equipped
+  const equippedItems = [
+    ...realInventory.filter(i => i.equipped),
+    ...demoInventory.filter(i => equippedDemoItems.includes(i.shop_item_id)),
+  ];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0F0A2E' }}>
@@ -103,8 +111,8 @@ export default function WardrobeScreen() {
           </View>
           <Text style={{ color: '#818CF8', fontSize: 12, marginTop: 10 }}>
             {equippedItems.length === 0
-              ? 'Tocá un ítem real para equiparlo'
-              : equippedItems.map(i => i.shop_items?.preview_url ?? '').join('  ')}
+              ? 'Tocá un ítem para equiparlo'
+              : `${equippedItems.length} ítem${equippedItems.length !== 1 ? 's' : ''} equipado${equippedItems.length !== 1 ? 's' : ''} ✓`}
           </Text>
         </View>
       )}
@@ -145,6 +153,8 @@ export default function WardrobeScreen() {
             const shopItem = item.shop_items;
             if (!shopItem) return null;
             const isDemo = item.id.startsWith('demo_');
+            const isDemoEquipped = isDemo && equippedDemoItems.includes(item.shop_item_id);
+            const isEquipped = isDemo ? isDemoEquipped : item.equipped;
             const r = RARITY_CONFIG[shopItem.rarity] ?? RARITY_CONFIG.common;
             const catEmoji = CATEGORY_EMOJI[shopItem.category] ?? '🎁';
             const isEmoji = !shopItem.preview_url.startsWith('http');
@@ -153,14 +163,14 @@ export default function WardrobeScreen() {
               <Animated.View entering={FadeInDown.delay(index * 40).duration(350)}>
                 <View style={{
                   flexDirection: 'row', alignItems: 'center', gap: 14,
-                  backgroundColor: item.equipped ? 'rgba(52,211,153,0.1)' : r.bg,
+                  backgroundColor: isEquipped ? 'rgba(52,211,153,0.1)' : r.bg,
                   borderRadius: 18, padding: 14,
-                  borderWidth: item.equipped ? 2 : 1,
-                  borderColor: item.equipped ? 'rgba(52,211,153,0.5)' : r.border,
-                  shadowColor: item.equipped ? '#10B981' : r.glow,
-                  shadowOpacity: item.equipped ? 0.4 : 0.15,
-                  shadowRadius: item.equipped ? 10 : 4,
-                  elevation: item.equipped ? 5 : 2,
+                  borderWidth: isEquipped ? 2 : 1,
+                  borderColor: isEquipped ? 'rgba(52,211,153,0.5)' : r.border,
+                  shadowColor: isEquipped ? '#10B981' : r.glow,
+                  shadowOpacity: isEquipped ? 0.4 : 0.15,
+                  shadowRadius: isEquipped ? 10 : 4,
+                  elevation: isEquipped ? 5 : 2,
                 }}>
                   {/* Icon */}
                   <View style={{
@@ -199,32 +209,32 @@ export default function WardrobeScreen() {
                     </View>
                   </View>
 
-                  {/* State badge */}
-                  {item.equipped ? (
-                    <View style={{
-                      backgroundColor: 'rgba(52,211,153,0.2)', borderRadius: 12,
+                  {/* Equip button */}
+                  <Pressable
+                    onPress={() => {
+                      if (isDemo) {
+                        toggleDemoEquip(item.shop_item_id);
+                      } else {
+                        toggleEquip(item);
+                      }
+                    }}
+                    style={({ pressed }) => ({
+                      backgroundColor: isEquipped
+                        ? pressed ? 'rgba(16,185,129,0.35)' : 'rgba(52,211,153,0.2)'
+                        : pressed ? 'rgba(129,140,248,0.25)' : 'rgba(129,140,248,0.12)',
+                      borderRadius: 12,
                       paddingHorizontal: 10, paddingVertical: 6,
-                      borderWidth: 1, borderColor: 'rgba(52,211,153,0.4)',
+                      borderWidth: 1,
+                      borderColor: isEquipped ? 'rgba(52,211,153,0.4)' : 'rgba(129,140,248,0.2)',
+                    })}
+                  >
+                    <Text style={{
+                      color: isEquipped ? '#34D399' : '#818CF8',
+                      fontSize: 11, fontWeight: '800',
                     }}>
-                      <Text style={{ color: '#34D399', fontSize: 11, fontWeight: '800' }}>✓ Equipado</Text>
-                    </View>
-                  ) : isDemo ? (
-                    <View style={{
-                      backgroundColor: 'rgba(129,140,248,0.12)', borderRadius: 12,
-                      paddingHorizontal: 10, paddingVertical: 6,
-                      borderWidth: 1, borderColor: 'rgba(129,140,248,0.2)',
-                    }}>
-                      <Text style={{ color: '#818CF8', fontSize: 11, fontWeight: '600' }}>En vestidor</Text>
-                    </View>
-                  ) : (
-                    <View style={{
-                      backgroundColor: 'rgba(129,140,248,0.12)', borderRadius: 12,
-                      paddingHorizontal: 10, paddingVertical: 6,
-                      borderWidth: 1, borderColor: 'rgba(129,140,248,0.2)',
-                    }}>
-                      <Text style={{ color: '#818CF8', fontSize: 11, fontWeight: '600' }}>Equipar</Text>
-                    </View>
-                  )}
+                      {isEquipped ? '✓ Equipado' : 'Equipar'}
+                    </Text>
+                  </Pressable>
                 </View>
               </Animated.View>
             );

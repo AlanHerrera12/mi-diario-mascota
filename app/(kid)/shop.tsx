@@ -9,6 +9,7 @@ import { usePetStore } from '../../src/stores/pet.store';
 import { useInventory } from '../../src/features/shop/useInventory';
 import { useShopItems, useBuyItem, type RawShopItem } from '../../src/features/shop/useShop';
 import { ShopItemCard } from '../../src/components/kid-ui/ShopItemCard';
+import { ItemIllustration } from '../../src/components/kid-ui/ItemIllustration';
 import type { ItemCategory } from '../../src/types';
 
 const CATEGORIES: { key: ItemCategory | 'all'; label: string; emoji: string }[] = [
@@ -96,7 +97,13 @@ function PreviewModal({
               shadowColor: glow, shadowOpacity: 0.4, shadowRadius: 16, elevation: 8,
               marginBottom: 16,
             }}>
-              <Text style={{ fontSize: 64 }}>{item.preview_url}</Text>
+              <ItemIllustration
+                category={item.category}
+                name={item.name}
+                rarity={item.rarity}
+                speciesKey={item.species_key}
+                size={100}
+              />
             </View>
 
             <Text style={{ color: 'white', fontSize: 22, fontWeight: '800', textAlign: 'center' }}>
@@ -382,6 +389,7 @@ export default function ShopScreen() {
                   equipped={equippedIds.has(item.id)}
                   onBuy={async () => { setPreview(item); }}
                   loading={false}
+                  index={index}
                 />
               </Pressable>
             </Animated.View>

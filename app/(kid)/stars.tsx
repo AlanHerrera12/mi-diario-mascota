@@ -3,7 +3,7 @@ import { View, Text, SafeAreaView, Pressable, LayoutChangeEvent } from 'react-na
 import Animated, {
   useSharedValue, useAnimatedStyle,
   withTiming, withSpring, withSequence,
-  withRepeat, withDelay, FadeIn, Easing,
+  withRepeat, withDelay, FadeIn, FadeInDown, Easing,
 } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -41,13 +41,8 @@ function BgStar({ x, y, delay }: { x: string; y: string; delay: number }) {
 
 // Catchable star
 function StarDot({ star, onCatch }: { star: StarItem; onCatch: (id: number) => void }) {
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    scale.value = withSpring(1, { damping: 7, stiffness: 150 });
-    opacity.value = withTiming(1, { duration: 250 });
-  }, []);
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
 
   function handlePress() {
     scale.value = withSequence(withSpring(2, { damping: 4 }), withTiming(0, { duration: 180 }));
@@ -65,7 +60,10 @@ function StarDot({ star, onCatch }: { star: StarItem; onCatch: (id: number) => v
   }));
 
   return (
-    <Animated.View style={style}>
+    <Animated.View
+      entering={FadeInDown.springify().damping(10).stiffness(100)}
+      style={style}
+    >
       <Pressable
         onPress={handlePress}
         style={{ width: STAR_SIZE, height: STAR_SIZE, alignItems: 'center', justifyContent: 'center' }}
