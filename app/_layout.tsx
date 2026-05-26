@@ -1,6 +1,6 @@
 import '../src/styles/global.css';
 import { useFonts } from 'expo-font';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -29,6 +29,7 @@ export default function RootLayout() {
   });
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const loadingData = useRef(false);
+  const segments = useSegments();
 
   const setParent = useAuthStore(s => s.setParent);
   const setActiveChild = useAuthStore(s => s.setActiveChild);
@@ -59,7 +60,14 @@ export default function RootLayout() {
       setParent(null);
       setActiveChild(null);
       setPet(null);
-      router.replace('/(auth)');
+      // Only redirect to auth if NOT already in the auth group.
+      // Without this guard, every unauthenticated page load would fire
+      // router.replace('/(auth)') and cancel any in-progress auth navigation
+      // (e.g. the user just tapped "Crear cuenta" and landed on parent-signup).
+      const inAuthGroup = segments[0] === '(auth)';
+      if (!inAuthGroup) {
+        router.replace('/(auth)');
+      }
       return;
     }
 
