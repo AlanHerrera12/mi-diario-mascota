@@ -1,6 +1,6 @@
-import { View, Text, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { View, Text } from 'react-native';
 import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
+import { WebSafePressable } from '../../src/components/shared/WebSafePressable';
 
 /** Static decorative stars — plain Views, zero pointer events, guaranteed non-blocking. */
 function StaticStars() {
@@ -118,29 +118,29 @@ export default function WelcomeScreen() {
         </View>
       </View>
 
-      {/* Buttons — parent has no alignItems:'center' so buttons get full width naturally */}
+      {/* Buttons — WebSafePressable renders native <button> on web for guaranteed clicks */}
       <View style={{ gap: 12, marginTop: 32, zIndex: 10 }}>
-        <Pressable
-          style={({ pressed }) => ({
-            backgroundColor: pressed ? '#DB2777' : '#EC4899',
+        <WebSafePressable
+          href="/(auth)/parent-signup"
+          style={{
+            backgroundColor: '#EC4899',
             borderRadius: 32, paddingVertical: 18, alignItems: 'center',
             shadowColor: '#BE185D', shadowOpacity: 0.45, shadowRadius: 10, elevation: 6,
-          })}
-          onPress={() => router.push('/(auth)/parent-signup')}
+          }}
         >
-          <Text style={{ color: 'white', fontSize: 18, fontWeight: '800' }}>
+          <Text style={{ color: 'white', fontSize: 18, fontWeight: '800', textAlign: 'center' }}>
             Soy un adulto — Crear cuenta
           </Text>
-        </Pressable>
+        </WebSafePressable>
 
-        <Pressable
+        <WebSafePressable
+          href="/(auth)/login"
           style={{ paddingVertical: 14, alignItems: 'center' }}
-          onPress={() => router.push('/(auth)/login')}
         >
-          <Text style={{ color: '#A5B4FC', fontSize: 16, fontWeight: '600' }}>
+          <Text style={{ color: '#A5B4FC', fontSize: 16, fontWeight: '600', textAlign: 'center' }}>
             Ya tengo cuenta →
           </Text>
-        </Pressable>
+        </WebSafePressable>
       </View>
     </View>
   );

@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useParentSignup } from '../../src/features/auth/useParentAuth';
+import { WebSafePressable } from '../../src/components/shared/WebSafePressable';
 
 const COUNTRY_OPTIONS = [
   { code: 'AR', label: '🇦🇷 Argentina' },
@@ -192,11 +193,11 @@ export default function ParentSignupScreen() {
             ))}
           </View>
 
-          <Pressable
+          <WebSafePressable
             onPress={handleSignup}
             disabled={loading}
-            style={({ pressed }) => ({
-              backgroundColor: pressed ? '#6D28D9' : '#7C3AED',
+            style={{
+              backgroundColor: '#7C3AED',
               borderRadius: 20,
               paddingVertical: 18,
               alignItems: 'center',
@@ -206,18 +207,18 @@ export default function ParentSignupScreen() {
               shadowRadius: 12,
               elevation: 6,
               opacity: loading ? 0.8 : 1,
-            })}
+            }}
           >
-            <Text style={{ color: 'white', fontSize: 17, fontWeight: '800' }}>
+            <Text style={{ color: 'white', fontSize: 17, fontWeight: '800', textAlign: 'center' }}>
               {loading ? 'Creando cuenta...' : 'Continuar'}
             </Text>
-          </Pressable>
+          </WebSafePressable>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, marginBottom: 32 }}>
             <Text style={{ color: '#818CF8', fontSize: 14 }}>¿Ya tenés cuenta? </Text>
-            <Pressable onPress={() => router.push('/(auth)/login')}>
+            <WebSafePressable href="/(auth)/login">
               <Text style={{ color: '#A78BFA', fontSize: 14, fontWeight: '700' }}>Iniciá sesión</Text>
-            </Pressable>
+            </WebSafePressable>
           </View>
         </ScrollView>
       </View>
