@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { usePetStore } from '../../src/stores/pet.store';
-import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
+import { PetDisplay } from '../../src/components/kid-ui/PetDisplay';
 
 // Twinkling star
 function Star({ delay, x, y, size = 16 }: { delay: number; x: string; y: string; size?: number }) {
@@ -58,15 +58,6 @@ function FloatingMoon() {
 
 export default function GoodnightScreen() {
   const pet = usePetStore(s => s.pet);
-
-  const petEmoji =
-    pet?.species === 'dog'      ? '🐶' :
-    pet?.species === 'cat'      ? '🐱' :
-    pet?.species === 'rabbit'   ? '🐰' :
-    pet?.species === 'bear'     ? '🐻' :
-    pet?.species === 'elephant' ? '🐘' :
-    pet?.species === 'giraffe'  ? '🦒' :
-    pet?.species === 'dragon'   ? '🐲' : '🦄';
 
   useEffect(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -130,13 +121,10 @@ export default function GoodnightScreen() {
             shadowColor: '#818CF8', shadowOpacity: 0.3, shadowRadius: 20,
             elevation: 10,
           }}>
-            {pet?.species === 'dog' ? (
-              <PetDogSVG size={150} mood="sleepy" baseColor={pet?.customization?.baseColor} />
+            {pet ? (
+              <PetDisplay pet={pet} mood="sleepy" size={150} showName={false} />
             ) : (
-              <>
-                <Text style={{ fontSize: 70 }}>{petEmoji}</Text>
-                <Text style={{ fontSize: 24, position: 'absolute', bottom: 16, right: 20 }}>😴</Text>
-              </>
+              <Text style={{ fontSize: 70 }}>🐾</Text>
             )}
           </View>
         </Animated.View>

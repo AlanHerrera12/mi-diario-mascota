@@ -1,5 +1,4 @@
-import { View, Text } from 'react-native';
-import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
+import { View, Text, Image } from 'react-native';
 import { WebSafePressable } from '../../src/components/shared/WebSafePressable';
 
 /** Static decorative stars — plain Views, zero pointer events, guaranteed non-blocking. */
@@ -95,7 +94,7 @@ export default function WelcomeScreen() {
           borderWidth: 1.5, borderColor: 'rgba(167,139,250,0.35)',
           shadowColor: '#7C3AED', shadowOpacity: 0.5, shadowRadius: 24, elevation: 10,
         }}>
-          <PetDogSVG size={150} mood="happy" />
+          <Image source={require('../../assets/pets/pet-dog.png')} style={{ width: 150, height: 150 }} resizeMode="contain" />
         </View>
 
         {/* Right speech bubble */}

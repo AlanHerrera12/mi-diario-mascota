@@ -1,11 +1,9 @@
+import { Image } from 'react-native';
 import Svg, {
   Circle, Ellipse, Path, Polygon, G, Defs, RadialGradient, LinearGradient, Stop, Rect, Line,
 } from 'react-native-svg';
-import { PetDogSVG }    from './PetDogSVG';
-import { PetCatSVG }    from './PetCatSVG';
-import { PetBearSVG }   from './PetBearSVG';
-import { PetRabbitSVG } from './PetRabbitSVG';
-import { PetDragonSVG } from './PetDragonSVG';
+import { PET_MAP } from '../../lib/pet-images';
+import type { PetSpecies } from '../../types';
 
 interface Props {
   category: string;
@@ -448,14 +446,17 @@ export function ItemIllustration({ category, name, rarity, speciesKey, size = 64
   const color = RARITY_GLOW[rarity] ?? '#9CA3AF';
   const lowerName = name.toLowerCase();
 
-  // Species → pet SVG
+  // Species → pet PNG
   if (category === 'species') {
     const sp = speciesKey ?? '';
-    if (sp === 'cat')    return <PetCatSVG    size={size} mood="happy" />;
-    if (sp === 'bear')   return <PetBearSVG   size={size} mood="happy" />;
-    if (sp === 'rabbit') return <PetRabbitSVG size={size} mood="happy" />;
-    if (sp === 'dragon') return <PetDragonSVG size={size} mood="happy" />;
-    return <PetDogSVG size={size} mood="happy" />;
+    const petInfo = PET_MAP[sp as PetSpecies] ?? PET_MAP['dog'];
+    return (
+      <Image
+        source={petInfo.image}
+        style={{ width: size, height: size }}
+        resizeMode="contain"
+      />
+    );
   }
 
   // Outfit — specific matches before generic fallback

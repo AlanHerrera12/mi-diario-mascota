@@ -28,12 +28,14 @@ export interface Child {
 // --- Mascota ---
 
 export type PetSpecies =
+  // ── Comunes (se eligen al inicio, gratis) ──
   | 'dog'
   | 'cat'
   | 'rabbit'
-  | 'giraffe'
-  | 'elephant'
-  | 'bear'
+  // ── Épicas (tienda o 100 días de racha) ──
+  | 'polar-bear'
+  | 'tiger'
+  // ── Legendarias (tienda) ──
   | 'dragon'
   | 'unicorn';
 
