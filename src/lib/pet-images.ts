@@ -1,13 +1,13 @@
 import type { PetSpecies } from '../types';
 
 /**
- * Central registry of pet PNG assets.
- * All images are 400×400 px, compressed to ~30–55 KB each.
+ * Pet registry — metadata only.
+ * Visual rendering is handled by PetAvatar → individual SVG components.
  *
  * Categories:
- *  COMMON  — dog, cat, rabbit          (free, choosable at start)
- *  EPIC    — polar-bear, tiger         (shop or 100-day streak)
- *  LEGENDARY — dragon, unicorn         (shop)
+ *  common    — dog, cat, rabbit          (free, choosable at start)
+ *  epic      — polar-bear, tiger         (shop or 100-day streak)
+ *  legendary — dragon, unicorn           (shop only)
  */
 
 export type PetCategory = 'common' | 'epic' | 'legendary';
@@ -16,61 +16,21 @@ export interface PetInfo {
   species: PetSpecies;
   label: string;
   category: PetCategory;
-  image: ReturnType<typeof require>;
   /** Short unlock description shown when locked */
   unlockHint?: string;
 }
 
 export const PET_LIST: PetInfo[] = [
   // ── Comunes ──────────────────────────────────────────────
-  {
-    species: 'dog',
-    label: 'Perro',
-    category: 'common',
-    image: require('../../assets/pets/pet-dog.png'),
-  },
-  {
-    species: 'cat',
-    label: 'Gato',
-    category: 'common',
-    image: require('../../assets/pets/pet-cat.png'),
-  },
-  {
-    species: 'rabbit',
-    label: 'Conejo',
-    category: 'common',
-    image: require('../../assets/pets/pet-rabbit.png'),
-  },
+  { species: 'dog',        label: 'Perro',     category: 'common'    },
+  { species: 'cat',        label: 'Gato',      category: 'common'    },
+  { species: 'rabbit',     label: 'Conejo',    category: 'common'    },
   // ── Épicas ───────────────────────────────────────────────
-  {
-    species: 'polar-bear',
-    label: 'Oso Polar',
-    category: 'epic',
-    image: require('../../assets/pets/pet-polar-bear.png'),
-    unlockHint: '100 días de racha o tienda',
-  },
-  {
-    species: 'tiger',
-    label: 'Tigre',
-    category: 'epic',
-    image: require('../../assets/pets/pet-tiger.png'),
-    unlockHint: 'Disponible en la tienda',
-  },
+  { species: 'polar-bear', label: 'Oso Polar', category: 'epic',      unlockHint: '100 días de racha o tienda' },
+  { species: 'tiger',      label: 'Tigre',     category: 'epic',      unlockHint: 'Disponible en la tienda'    },
   // ── Legendarias ──────────────────────────────────────────
-  {
-    species: 'dragon',
-    label: 'Dragón',
-    category: 'legendary',
-    image: require('../../assets/pets/pet-dragon.png'),
-    unlockHint: 'Disponible en la tienda',
-  },
-  {
-    species: 'unicorn',
-    label: 'Unicornio',
-    category: 'legendary',
-    image: require('../../assets/pets/pet-unicorn.png'),
-    unlockHint: 'Disponible en la tienda',
-  },
+  { species: 'dragon',     label: 'Dragón',    category: 'legendary', unlockHint: 'Disponible en la tienda'    },
+  { species: 'unicorn',    label: 'Unicornio', category: 'legendary', unlockHint: 'Disponible en la tienda'    },
 ];
 
 /** Quick lookup by species key */

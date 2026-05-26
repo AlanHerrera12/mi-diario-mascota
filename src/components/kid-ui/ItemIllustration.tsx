@@ -1,8 +1,7 @@
-import { Image } from 'react-native';
 import Svg, {
   Circle, Ellipse, Path, Polygon, G, Defs, RadialGradient, LinearGradient, Stop, Rect, Line,
 } from 'react-native-svg';
-import { PET_MAP } from '../../lib/pet-images';
+import { PetAvatar } from './PetAvatar';
 import type { PetSpecies } from '../../types';
 
 interface Props {
@@ -446,17 +445,10 @@ export function ItemIllustration({ category, name, rarity, speciesKey, size = 64
   const color = RARITY_GLOW[rarity] ?? '#9CA3AF';
   const lowerName = name.toLowerCase();
 
-  // Species → pet PNG
+  // Species → pet SVG via PetAvatar
   if (category === 'species') {
-    const sp = speciesKey ?? '';
-    const petInfo = PET_MAP[sp as PetSpecies] ?? PET_MAP['dog'];
-    return (
-      <Image
-        source={petInfo.image}
-        style={{ width: size, height: size }}
-        resizeMode="contain"
-      />
-    );
+    const sp = (speciesKey ?? 'dog') as PetSpecies;
+    return <PetAvatar species={sp} size={size} mood="happy" />;
   }
 
   // Outfit — specific matches before generic fallback

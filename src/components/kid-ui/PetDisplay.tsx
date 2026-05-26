@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence, Easing } from 'react-native-reanimated';
 import type { Pet } from '../../types';
-import { PET_MAP } from '../../lib/pet-images';
+import { PetAvatar } from './PetAvatar';
 import { ItemIllustration } from './ItemIllustration';
 import { usePetStore } from '../../stores/pet.store';
 import { DEMO_ITEMS } from '../../features/shop/useShop';
@@ -88,8 +88,7 @@ export function PetDisplay({ pet, mood = 'idle', size = 180, previewItem, showNa
     transform: [{ scale: scale.value }, { translateY: translateY.value }],
   }));
 
-  const suffix  = MOOD_SUFFIX[mood];
-  const petInfo = PET_MAP[pet.species];
+  const suffix = MOOD_SUFFIX[mood];
 
   const realEquipped: string[] = pet.customization.equippedItems ?? [];
   const allEquippedIds = Array.from(new Set([...realEquipped, ...equippedDemoItems]));
@@ -125,13 +124,7 @@ export function PetDisplay({ pet, mood = 'idle', size = 180, previewItem, showNa
       <Animated.View style={[animatedStyle, { width: size, height: size, alignItems: 'center', justifyContent: 'center' }]}>
         {behindOverlays.map(renderOverlay)}
 
-        {petInfo ? (
-          <Image source={petInfo.image} style={{ width: size, height: size }} resizeMode="contain" />
-        ) : (
-          <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: 'rgba(167,139,250,0.2)', alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: size * 0.45 }}>🐾</Text>
-          </View>
-        )}
+        <PetAvatar species={pet.species} size={size} mood={mood} baseColor={pet.customization?.baseColor} />
 
         {frontOverlays.map(renderOverlay)}
         {suffix ? (

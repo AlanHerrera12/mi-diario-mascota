@@ -1,159 +1,128 @@
-import Svg, {
-  Circle, Ellipse, Path, G, Defs, RadialGradient, Stop,
-} from 'react-native-svg';
+// Polar Bear — white/icy with ice-blue crystal aura (Épica)
+import Svg, { Circle, Ellipse, Path, G, Defs, RadialGradient, Stop } from 'react-native-svg';
 
-interface Props {
-  size?: number;
-  mood?: 'idle' | 'listening' | 'happy' | 'sleepy' | 'missing_you';
-  baseColor?: string;
+type Mood = 'idle' | 'listening' | 'happy' | 'sleepy' | 'missing_you';
+interface Props { size?: number; mood?: Mood; }
+
+function Eye({ x, y, r, mood }: { x: number; y: number; r: number; mood: Mood }) {
+  if (mood === 'happy') {
+    return (
+      <Path d={`M ${x - r} ${y + r*0.2} Q ${x} ${y - r*1.15} ${x + r} ${y + r*0.2}`}
+        stroke="#0A2030" strokeWidth={r*0.55} fill="none" strokeLinecap="round" />
+    );
+  }
+  return (
+    <G>
+      <Circle cx={x} cy={y} r={r} fill="white" />
+      <Circle cx={x} cy={y} r={r*0.72} fill="#5BA8D8" />
+      <Circle cx={x} cy={y} r={r*0.72} fill="#2878A8" opacity={0.38} />
+      <Circle cx={x} cy={y} r={r*0.38} fill="#0A1828" />
+      <Circle cx={x + r*0.26} cy={y - r*0.30} r={r*0.20} fill="white" opacity={0.92} />
+      <Circle cx={x + r*0.08} cy={y - r*0.50} r={r*0.09} fill="white" opacity={0.65} />
+      {mood === 'sleepy' && (
+        <Path d={`M ${x - r*1.05} ${y} Q ${x} ${y - r*0.52} ${x + r*1.05} ${y}`} fill="#EEF6FF" />
+      )}
+    </G>
+  );
 }
 
-export function PetBearSVG({ size = 200, mood = 'idle', baseColor = '#A78BFA' }: Props) {
+function Crystal({ x, y, h, op = 0.70 }: { x: number; y: number; h: number; op?: number }) {
+  return (
+    <Path d={`M ${x} ${y - h} L ${x + h*0.5} ${y} L ${x} ${y + h*0.7} L ${x - h*0.5} ${y} Z`}
+      fill="#A8D8F0" stroke="#78B8E0" strokeWidth={h*0.10} opacity={op} />
+  );
+}
+
+export function PetBearSVG({ size = 200, mood = 'idle' }: Props) {
   const s = size;
   const cx = s / 2;
-
-  const isHappy = mood === 'happy';
-  const isSleepy = mood === 'sleepy';
-  const isMissingYou = mood === 'missing_you';
-
-  const bodyMain  = '#C4B5FD';
-  const bodyShade = '#A78BFA';
-  const bodyLight = '#EDE9FE';
-  const earOuter  = '#DDD6FE';
-  const earInner  = '#F5D0FE';  // soft pink inner ear
-  const noseColor = '#6D28D9';
-  const eyeColor  = '#1F2937';
 
   return (
     <Svg width={s} height={s} viewBox={`0 0 ${s} ${s}`}>
       <Defs>
-        <RadialGradient id="bearBodyGrad" cx="45%" cy="38%" r="55%">
-          <Stop offset="0%" stopColor={bodyLight} />
-          <Stop offset="55%" stopColor={bodyMain} />
-          <Stop offset="100%" stopColor={bodyShade} />
+        <RadialGradient id="pbHead" cx="36%" cy="26%" r="65%">
+          <Stop offset="0%"   stopColor="#FFFFFF" />
+          <Stop offset="40%"  stopColor="#EEF8FF" />
+          <Stop offset="100%" stopColor="#B8D8F0" />
         </RadialGradient>
-        <RadialGradient id="bearHeadGrad" cx="43%" cy="32%" r="55%">
-          <Stop offset="0%" stopColor={bodyLight} />
-          <Stop offset="52%" stopColor={bodyMain} />
-          <Stop offset="100%" stopColor={bodyShade} />
+        <RadialGradient id="pbBody" cx="36%" cy="22%" r="68%">
+          <Stop offset="0%"   stopColor="#FFFFFF" />
+          <Stop offset="50%"  stopColor="#E8F4FF" />
+          <Stop offset="100%" stopColor="#A8C8E8" />
         </RadialGradient>
-        <RadialGradient id="bearBellyGrad" cx="50%" cy="50%" r="50%">
-          <Stop offset="0%" stopColor={bodyLight} />
-          <Stop offset="100%" stopColor={earOuter} />
+        <RadialGradient id="pbEar" cx="40%" cy="30%" r="62%">
+          <Stop offset="0%"   stopColor="#F0FAFF" />
+          <Stop offset="100%" stopColor="#C8E4F8" />
         </RadialGradient>
-        <RadialGradient id="bearCheekGrad" cx="50%" cy="50%" r="50%">
-          <Stop offset="0%" stopColor="#FEE2E2" stopOpacity="0.9" />
-          <Stop offset="100%" stopColor="#FCA5A5" stopOpacity="0.5" />
+        <RadialGradient id="pbMuzzle" cx="48%" cy="28%" r="62%">
+          <Stop offset="0%"   stopColor="#FFFFFF" />
+          <Stop offset="100%" stopColor="#DCF0FF" />
+        </RadialGradient>
+        <RadialGradient id="pbAura" cx="50%" cy="50%" r="50%">
+          <Stop offset="0%"   stopColor="#78C8F0" stopOpacity="0.22" />
+          <Stop offset="100%" stopColor="#A8D8F8" stopOpacity="0" />
         </RadialGradient>
       </Defs>
 
+      {/* Ice aura glow */}
+      <Circle cx={cx} cy={s*0.5} r={s*0.46} fill="url(#pbAura)" />
+
+      {/* Ice crystals */}
+      <Crystal x={cx - s*0.36} y={s*0.40} h={s*0.052} op={0.72} />
+      <Crystal x={cx + s*0.36} y={s*0.38} h={s*0.046} op={0.68} />
+      <Crystal x={cx - s*0.30} y={s*0.72} h={s*0.040} op={0.60} />
+      <Crystal x={cx + s*0.28} y={s*0.74} h={s*0.036} op={0.55} />
+      <Crystal x={cx + s*0.05} y={s*0.12} h={s*0.032} op={0.50} />
+      <Crystal x={cx - s*0.08} y={s*0.88} h={s*0.028} op={0.45} />
+
       {/* Ground shadow */}
-      <Ellipse cx={cx} cy={s * 0.93} rx={s * 0.30} ry={s * 0.038} fill="#5B21B6" opacity={0.15} />
+      <Ellipse cx={cx} cy={s*0.945} rx={s*0.23} ry={s*0.034} fill="#1A0A40" opacity={0.10} />
 
-      {/* Wide chunky body */}
-      <Ellipse cx={cx} cy={s * 0.73} rx={s * 0.34} ry={s * 0.26} fill="url(#bearBodyGrad)" />
+      {/* Body */}
+      <Ellipse cx={cx} cy={s*0.75} rx={s*0.29} ry={s*0.23} fill="url(#pbBody)" />
 
-      {/* Belly patch */}
-      <Ellipse cx={cx} cy={s * 0.76} rx={s * 0.20} ry={s * 0.17} fill="url(#bearBellyGrad)" opacity={0.65} />
+      {/* Paws */}
+      <Ellipse cx={cx - s*0.15} cy={s*0.912} rx={s*0.085} ry={s*0.050} fill="#E8F4FF" />
+      <Ellipse cx={cx + s*0.15} cy={s*0.912} rx={s*0.085} ry={s*0.050} fill="#E8F4FF" />
 
-      {/* Front paws */}
-      <Ellipse cx={cx - s * 0.22} cy={s * 0.89} rx={s * 0.10} ry={s * 0.075} fill={bodyMain} />
-      <Ellipse cx={cx + s * 0.22} cy={s * 0.89} rx={s * 0.10} ry={s * 0.075} fill={bodyMain} />
-      <Circle cx={cx - s * 0.25} cy={s * 0.898} r={s * 0.022} fill={bodyShade} />
-      <Circle cx={cx - s * 0.22} cy={s * 0.908} r={s * 0.022} fill={bodyShade} />
-      <Circle cx={cx - s * 0.19} cy={s * 0.898} r={s * 0.022} fill={bodyShade} />
-      <Circle cx={cx + s * 0.19} cy={s * 0.898} r={s * 0.022} fill={bodyShade} />
-      <Circle cx={cx + s * 0.22} cy={s * 0.908} r={s * 0.022} fill={bodyShade} />
-      <Circle cx={cx + s * 0.25} cy={s * 0.898} r={s * 0.022} fill={bodyShade} />
+      {/* Left ear */}
+      <Circle cx={cx - s*0.205} cy={s*0.270} r={s*0.090} fill="url(#pbEar)" />
+      <Circle cx={cx - s*0.205} cy={s*0.270} r={s*0.054} fill="#D8EEFF" />
 
-      {/* LEFT round ear */}
-      <Circle cx={cx - s * 0.27} cy={s * 0.18} r={s * 0.095} fill={earOuter} />
-      <Circle cx={cx - s * 0.27} cy={s * 0.18} r={s * 0.056} fill={earInner} />
+      {/* Right ear */}
+      <Circle cx={cx + s*0.205} cy={s*0.265} r={s*0.084} fill="url(#pbEar)" />
+      <Circle cx={cx + s*0.205} cy={s*0.265} r={s*0.050} fill="#D8EEFF" />
 
-      {/* RIGHT round ear */}
-      <Circle cx={cx + s * 0.27} cy={s * 0.18} r={s * 0.095} fill={earOuter} />
-      <Circle cx={cx + s * 0.27} cy={s * 0.18} r={s * 0.056} fill={earInner} />
+      {/* Head */}
+      <Circle cx={cx} cy={s*0.435} r={s*0.285} fill="url(#pbHead)" />
 
-      {/* Big round head */}
-      <Circle cx={cx} cy={s * 0.38} r={s * 0.32} fill="url(#bearHeadGrad)" />
+      {/* Muzzle */}
+      <Ellipse cx={cx} cy={s*0.545} rx={s*0.135} ry={s*0.095} fill="url(#pbMuzzle)" />
 
-      {/* Round snout */}
-      <Circle cx={cx} cy={s * 0.475} r={s * 0.11} fill={earOuter} />
-      <Circle cx={cx} cy={s * 0.475} r={s * 0.085} fill={bodyLight} opacity={0.6} />
-
-      {/* Cheeks */}
-      <Ellipse cx={cx - s * 0.19} cy={s * 0.45} rx={s * 0.068} ry={s * 0.048} fill="url(#bearCheekGrad)" />
-      <Ellipse cx={cx + s * 0.19} cy={s * 0.45} rx={s * 0.068} ry={s * 0.048} fill="url(#bearCheekGrad)" />
-
-      {/* EYES */}
-      {isHappy ? (
-        <G>
-          <Path d={`M ${cx - s * 0.13} ${s * 0.355} Q ${cx - s * 0.085} ${s * 0.31} ${cx - s * 0.04} ${s * 0.355}`}
-            stroke={eyeColor} strokeWidth={s * 0.027} fill="none" strokeLinecap="round" />
-          <Path d={`M ${cx + s * 0.04} ${s * 0.355} Q ${cx + s * 0.085} ${s * 0.31} ${cx + s * 0.13} ${s * 0.355}`}
-            stroke={eyeColor} strokeWidth={s * 0.027} fill="none" strokeLinecap="round" />
-        </G>
-      ) : isSleepy ? (
-        <G>
-          <Ellipse cx={cx - s * 0.085} cy={s * 0.355} rx={s * 0.058} ry={s * 0.035} fill={eyeColor} />
-          <Ellipse cx={cx + s * 0.085} cy={s * 0.355} rx={s * 0.058} ry={s * 0.035} fill={eyeColor} />
-          <Path d={`M ${cx - s * 0.145} ${s * 0.35} Q ${cx - s * 0.085} ${s * 0.33} ${cx - s * 0.025} ${s * 0.35}`}
-            stroke={bodyShade} strokeWidth={s * 0.02} fill="none" />
-          <Path d={`M ${cx + s * 0.025} ${s * 0.35} Q ${cx + s * 0.085} ${s * 0.33} ${cx + s * 0.145} ${s * 0.35}`}
-            stroke={bodyShade} strokeWidth={s * 0.02} fill="none" />
-        </G>
-      ) : isMissingYou ? (
-        <G>
-          <Circle cx={cx - s * 0.085} cy={s * 0.355} r={s * 0.055} fill={eyeColor} />
-          <Circle cx={cx + s * 0.085} cy={s * 0.355} r={s * 0.055} fill={eyeColor} />
-          <Circle cx={cx - s * 0.07} cy={s * 0.34} r={s * 0.016} fill="white" />
-          <Circle cx={cx + s * 0.10} cy={s * 0.34} r={s * 0.016} fill="white" />
-          <Ellipse cx={cx + s * 0.085} cy={s * 0.42} rx={s * 0.018} ry={s * 0.025} fill="#93C5FD" opacity={0.9} />
-        </G>
-      ) : (
-        <G>
-          <Circle cx={cx - s * 0.085} cy={s * 0.355} r={s * 0.058} fill={eyeColor} />
-          <Circle cx={cx + s * 0.085} cy={s * 0.355} r={s * 0.058} fill={eyeColor} />
-          <Circle cx={cx - s * 0.068} cy={s * 0.338} r={s * 0.018} fill="white" />
-          <Circle cx={cx + s * 0.102} cy={s * 0.338} r={s * 0.018} fill="white" />
-          <Circle cx={cx - s * 0.060} cy={s * 0.348} r={s * 0.009} fill="white" opacity={0.6} />
-          <Circle cx={cx + s * 0.110} cy={s * 0.348} r={s * 0.009} fill="white" opacity={0.6} />
-        </G>
-      )}
+      {/* Eyes */}
+      <Eye x={cx - s*0.118} y={s*0.408} r={s*0.070} mood={mood} />
+      <Eye x={cx + s*0.118} y={s*0.408} r={s*0.070} mood={mood} />
 
       {/* Nose */}
-      <Ellipse cx={cx} cy={s * 0.455} rx={s * 0.042} ry={s * 0.030} fill={noseColor} />
-      <Ellipse cx={cx - s * 0.014} cy={s * 0.448} rx={s * 0.013} ry={s * 0.009} fill="white" opacity={0.45} />
+      <Ellipse cx={cx} cy={s*0.512} rx={s*0.032} ry={s*0.022} fill="#4A7890" />
+      <Ellipse cx={cx} cy={s*0.508} rx={s*0.013} ry={s*0.007} fill="#78A8C0" opacity={0.5} />
 
       {/* Mouth */}
-      {isHappy ? (
-        <G>
-          <Path d={`M ${cx - s * 0.055} ${s * 0.475} Q ${cx} ${s * 0.515} ${cx + s * 0.055} ${s * 0.475}`}
-            stroke={noseColor} strokeWidth={s * 0.018} fill="none" strokeLinecap="round" />
-          <Ellipse cx={cx} cy={s * 0.52} rx={s * 0.032} ry={s * 0.038} fill="#F87171" />
-        </G>
-      ) : isMissingYou ? (
-        <Path d={`M ${cx - s * 0.05} ${s * 0.49} Q ${cx} ${s * 0.475} ${cx + s * 0.05} ${s * 0.49}`}
-          stroke={noseColor} strokeWidth={s * 0.018} fill="none" strokeLinecap="round" />
+      {mood === 'happy' ? (
+        <Path d={`M ${cx - s*0.062} ${s*0.568} Q ${cx} ${s*0.604} ${cx + s*0.062} ${s*0.568}`}
+          stroke="#4A7890" strokeWidth={s*0.017} fill="none" strokeLinecap="round" />
       ) : (
-        <Path d={`M ${cx - s * 0.04} ${s * 0.475} Q ${cx} ${s * 0.498} ${cx + s * 0.04} ${s * 0.475}`}
-          stroke={noseColor} strokeWidth={s * 0.016} fill="none" strokeLinecap="round" />
+        <Path d={`M ${cx - s*0.048} ${s*0.568} Q ${cx} ${s*0.590} ${cx + s*0.048} ${s*0.568}`}
+          stroke="#4A7890" strokeWidth={s*0.015} fill="none" strokeLinecap="round" />
       )}
 
-      {/* Head highlight */}
-      <Ellipse
-        cx={cx - s * 0.09} cy={s * 0.235}
-        rx={s * 0.075} ry={s * 0.048}
-        fill="white" opacity={0.30}
-        transform={`rotate(-20 ${cx - s * 0.09} ${s * 0.235})`}
-      />
-      {/* Rim light */}
-      <Ellipse
-        cx={cx + s * 0.16} cy={s * 0.22}
-        rx={s * 0.058} ry={s * 0.038}
-        fill="white" opacity={0.12}
-        transform={`rotate(25 ${cx + s * 0.16} ${s * 0.22})`}
-      />
+      {/* Blush (icy blue-pink) */}
+      <Ellipse cx={cx - s*0.208} cy={s*0.490} rx={s*0.060} ry={s*0.033} fill="rgba(160,210,248,0.45)" />
+      <Ellipse cx={cx + s*0.208} cy={s*0.490} rx={s*0.060} ry={s*0.033} fill="rgba(160,210,248,0.45)" />
+
+      {/* Head specular */}
+      <Ellipse cx={cx + s*0.110} cy={s*0.305} rx={s*0.085} ry={s*0.057}
+        fill="white" opacity={0.38} transform={`rotate(-28, ${cx + s*0.110}, ${s*0.305})`} />
     </Svg>
   );
 }

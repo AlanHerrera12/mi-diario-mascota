@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import {
   View, Text, Pressable, ActivityIndicator, TextInput,
-  KeyboardAvoidingView, Platform, ScrollView, Image,
+  KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
+import { PetDogSVG } from '../../src/components/kid-ui/PetDogSVG';
 import { useParentLogin } from '../../src/features/auth/useParentAuth';
 import { WebSafePressable } from '../../src/components/shared/WebSafePressable';
 
@@ -38,7 +39,7 @@ export default function LoginScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: '#0D0626', alignItems: 'center', justifyContent: 'center' }}>
         {/* bg gradient via backgroundColor on root — no animated overlay */}
-        <Image source={require('../../assets/pets/pet-dog.png')} style={{ width: 120, height: 120 }} resizeMode="contain" />
+        <PetDogSVG size={120} mood="happy" />
         <ActivityIndicator size="large" color="#A78BFA" style={{ marginTop: 24 }} />
         <Text style={{ color: 'white', marginTop: 16, fontSize: 18, fontWeight: '800' }}>
           Entrando...
@@ -63,7 +64,7 @@ export default function LoginScreen() {
           <Text style={{ color: '#A5B4FC', fontSize: 16 }}>← Volver</Text>
         </Pressable>
 
-        <Image source={require('../../assets/pets/pet-dog.png')} style={{ width: 110, height: 110 }} resizeMode="contain" />
+        <PetDogSVG size={110} mood="happy" />
 
         <Text style={{ color: 'white', fontSize: 26, fontWeight: '800', marginTop: 8 }}>
           ¡Hola de vuelta!

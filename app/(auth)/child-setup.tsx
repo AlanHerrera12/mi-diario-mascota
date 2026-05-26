@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { View, Text, Alert, Pressable, ScrollView, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Alert, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { AppTextInput } from '../../src/components/shared/AppTextInput';
 import { PetSpeciesSelector } from '../../src/components/pet/PetSpeciesSelector';
 import { useChildSetup } from '../../src/features/auth/useParentAuth';
-import { PET_MAP } from '../../src/lib/pet-images';
+import { PetAvatar } from '../../src/components/kid-ui/PetAvatar';
 import type { Child, PetSpecies } from '../../src/types';
 
 const AGE_RANGES: { value: Child['ageRange']; label: string }[] = [
@@ -54,7 +54,6 @@ export default function ChildSetupScreen() {
     }
   }
 
-  const selectedPetInfo = petSpecies ? PET_MAP[petSpecies] : null;
 
   return (
     <KeyboardAvoidingView
@@ -149,22 +148,18 @@ export default function ChildSetupScreen() {
         </View>
 
         {/* Vista previa */}
-        {selectedPetInfo && petName ? (
+        {petSpecies && petName ? (
           <View style={{
             backgroundColor: 'rgba(255,255,255,0.04)',
             borderRadius: 24, padding: 20, marginBottom: 28,
             borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
             alignItems: 'center',
           }}>
-            <Text style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginBottom: 12, fontWeight: '600', letterSpacing: 1 }}>
+            <Text style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, marginBottom: 8, fontWeight: '600', letterSpacing: 1 }}>
               VISTA PREVIA
             </Text>
-            <Image
-              source={selectedPetInfo.image}
-              style={{ width: 110, height: 110, marginBottom: 10 }}
-              resizeMode="contain"
-            />
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#F0EBFF' }}>{petName}</Text>
+            <PetAvatar species={petSpecies} size={110} mood="happy" />
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#F0EBFF', marginTop: 8 }}>{petName}</Text>
             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
               listo para escuchar a {childName || '...'}
             </Text>

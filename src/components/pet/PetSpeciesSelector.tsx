@@ -1,7 +1,8 @@
-import { View, Text, Pressable, Image, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { PetSpecies } from '../../types';
 import { PET_LIST, CATEGORY_META, type PetCategory } from '../../lib/pet-images';
+import { PetAvatar } from '../kid-ui/PetAvatar';
 
 interface Props {
   selected: PetSpecies | null;
@@ -81,16 +82,12 @@ export function PetSpeciesSelector({ selected, onSelect }: Props) {
                         opacity: locked ? 0.6 : 1,
                       })}
                     >
-                      {/* Pet image */}
+                      {/* Pet SVG thumbnail */}
                       <View style={{ position: 'relative', width: 64, height: 64, marginBottom: 6 }}>
-                        <Image
-                          source={pet.image}
-                          style={{ width: 64, height: 64 }}
-                          resizeMode="contain"
-                        />
+                        <PetAvatar species={pet.species} size={64} mood="idle" />
                         {locked && (
                           <View style={{
-                            position: 'absolute', inset: 0,
+                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                             alignItems: 'center', justifyContent: 'center',
                             backgroundColor: 'rgba(0,0,0,0.45)',
                             borderRadius: 12,
